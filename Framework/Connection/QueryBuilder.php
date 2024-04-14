@@ -2,6 +2,8 @@
 
 namespace Framework\Connection;
 
+use Framework\Interfaces\SqlQueryCastable;
+
 class QueryBuilder {
     const EQUALS = '=';
     const LESS = '<';
@@ -109,7 +111,12 @@ class QueryBuilder {
     {
         $columns = [];
         foreach ($data as $key => $value) {
-            $columns[] = "`$key`='$value'";
+            if($value instanceof SqlQueryCastable) {
+                $columns[] = "`$key`='{$value->toSqlString()}'";
+            }
+            else {
+                $columns[] = "`$key`='$value'";
+            }
         }
         return "UPDATE `$this->table` SET ".implode(', ',$columns)." WHERE `$referToColumn`='$id';";
     }
@@ -127,7 +134,12 @@ class QueryBuilder {
         $values = [];
         foreach ($data as $key => $value) {
             $keys[] = "`$key`";
-            $values[] = "'$value'";
+            if($value instanceof SqlQueryCastable) {
+                $values[]= "'{$value->toSqlString()}'";
+            }
+            else {
+                $values[] = "'$value'";
+            }
         }
         $keys = implode(', ', $keys);
         $values = implode(', ', $values);

@@ -13,33 +13,14 @@ class DatabaseBuilder {
     {
         $tables = [];
 
-        $buffer = new TableBuilder("game");
-        $buffer->primary()->string('name',25)->string('surname',35)->date('birthdate')->date('date')->integer('team')->integer('country');
-        $tables[] = $buffer;
+        $buffer = new TableBuilder("example_table_1");
+        $tables[] = $buffer->primary()
+        ->integer("table_2_id");
 
-        $buffer = new TableBuilder("country");
-        $buffer->primary()->string('name',40)->string('shortcut',4)->string('colors',30);
-        $tables[] = $buffer;
+        $buffer = new TableBuilder("example_table_2");
+        $tables[] = $buffer->primary()
+        ->string("text_check");
 
-        $buffer = new TableBuilder("racer");
-        $buffer->primary()->string('imie',50)->string('nazwisko',50)->integer('wiek')->date('birthdate')->integer('ocena')->integer('country_id')->integer('team_id')->integer('mecze')->integer('biegi')->string('places',15)->integer('punkty')->integer('bonusy')->integer('d')->integer('w')->integer('t')->integer('u');
-        $tables[] = $buffer;
-
-        $buffer = new TableBuilder("heat");
-        $buffer->primary()->string('colors',7)->string('racers',12)->string('substitutions',15)->string('results',15)->integer('stan');
-        $tables[] = $buffer;
-
-        $buffer = new TableBuilder("team");
-        $buffer->primary()->string("city",40)->string('sponsor',40)->string("trainer",70)->integer("league")->string("colors",30);
-        $tables[] = $buffer;
-
-        $buffer = new TableBuilder("schedule");
-        $buffer->primary()->integer("league")->integer("round")->date("date")->integer("home")->integer("away")->integer("home_result")->integer("away_result")->integer("status")->integer("etap_sezonu");
-        $tables[] = $buffer;
-
-        $buffer = new TableBuilder("matchracer");
-        $buffer->primary()->integer("racer_id")->integer("match_form")->string("results",25)->integer("ordinary_reserve")->integer("tactical_reserve");
-        $tables[] = $buffer;
 
         return $tables;
     }

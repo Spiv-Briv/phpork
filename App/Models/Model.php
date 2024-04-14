@@ -8,13 +8,15 @@ use Stringable;
 use App\Collections\Collection;
 use Framework\Connection\TypeCast;
 use Framework\Connection\QueryBuilder;
+use Framework\Exceptions\UndefinedPropertyException;
 use Framework\Exceptions\UnknownCastException;
+use Framework\Interfaces\SqlQueryCastable;
 
-abstract class Model implements Stringable
+abstract class Model implements Stringable, SqlQueryCastable
 {
     protected static string $table;
     protected static array $columns;
-    protected static array $types;
+    protected static array $types = [];
     protected static string $linkedProperty = "id";
 
     /**
@@ -183,6 +185,9 @@ abstract class Model implements Stringable
         $object = new $className();
         $casts = get_class_vars(get_called_class())["types"];
         foreach ($columns as $column) {
+            if(!array_key_exists($column, $singleQuery)) {
+                throw new UndefinedPropertyException();
+            }
             if (array_key_exists($column, $casts)) {
                 switch (self::getType($column)) {
                     case 'int': {
@@ -230,7 +235,6 @@ abstract class Model implements Stringable
     }
 
     /**
-     * @param bool $plural
      * @return string
      */
     public static function getTableName(): string
@@ -267,7 +271,7 @@ abstract class Model implements Stringable
             "<table border='1' style='background-color: var(--color-secondary); margin: 5px; border-collapse: collapse; text-align: center;'>",
                 "<thead style='background-color: var(--color-primary);'>",
                     "<tr>",
-                        "<th style='padding: 10px' colspan='$columnCount'> $table</th>",
+                        "<th style='padding: 10px' colspan='$columnCount'>$table</th>",
                     "</tr>",
                 "</thead>",
                 "<tbody>",
@@ -287,5 +291,11 @@ abstract class Model implements Stringable
             "</table>"
         ];
         return implode($html);
+    }
+
+    function toSqlString(): string
+    {
+        $linkedProperty = self::getLinkedProperty();
+        return "{$this->$linkedProperty}";
     }
 }
