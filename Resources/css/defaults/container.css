@@ -1,0 +1,10 @@
+div[outlook="container_default"] {
+    margin: 25px;
+    background-color: var(--color-primary);
+    border: 2px solid var(--color-white);
+    border-radius: 25px 0;
+    box-shadow: var(--size-shadow-S);
+    padding: 20px;
+    width: fit-content;
+    text-align: center;
+}

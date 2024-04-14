@@ -1,0 +1,41 @@
+div[outlook="list_default"] {
+    margin: 5px 25px;
+    border: 2px solid var(--color-white);
+    border-radius: 25px 0;
+    box-shadow: var(--size-shadow-S);
+    width: fit-content;
+    text-align: center;
+    background-color: var(--color-primary);
+}
+
+div[outlook="list_default"] div[outlook="list_category_default"] {
+    margin: 20px 15px;
+    padding: 5px;
+    background-color: var(--color-secondary);
+    border: 1px solid var(--color-white);
+    border-radius: 25px 0;
+    box-shadow: var(--size-shadow-XS);
+}
+
+div[outlook="list_default"] div[outlook="list_category_default"] div[outlook="list_category_item_default"] {
+    margin: 5px;
+    padding: 15px;
+    background-color: var(--color-third);
+    border: 1px solid var(--color-white);
+    border-radius: 25px 0;
+    box-shadow: var(--size-shadow-XS);
+    counter-increment: count;
+}
+
+div[outlook="list_default"] div[outlook="list_category_default"] div[outlook="list_category_item_default"]::before {
+    content: counter(count)". ";
+
+}
+
+div[outlook="list_default"] > h2:first-of-type {
+    margin: 20px;
+}
+
+div[outlook="list_default"] h2 {
+    margin: 10px;
+}

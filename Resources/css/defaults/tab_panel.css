@@ -1,0 +1,29 @@
+div[outlook="tab_panel_default"] {
+    width: 100%;
+}
+
+div[outlook="tab_panel_bar_default"] {
+    background-color: var(--color-third);
+    padding: 15px 50px 0 50px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+div[outlook="tab_panel_bar_default"] button {
+    background-color: var(--color-third);
+    color: var(--color-white);
+    padding: 10px;
+    flex: 1;
+    transition-duration: 0.2s;
+    cursor: pointer;
+    border: none;
+    box-shadow: -1px -4px 3px black;
+    font-family: arial, sans-serif;
+    font-size: 16px;
+    border-radius: 25px 0 0 0;
+}
+
+div[outlook="tab_panel_bar_default"] button[current="true"] {
+    background-color: var(--color-background);
+}

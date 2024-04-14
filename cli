@@ -1,0 +1,96 @@
+<?php
+
+use Framework\Terminal\Terminal;
+use Framework\Database\DatabaseBuilder;
+
+require_once "Framework/EnvLoader.php";
+require_once "Framework/Terminal/Terminal.php";
+
+$file = array_shift($argv);
+$argc--;
+$availableCommands = ["database","table"];
+if($argc==0) {
+    echo Terminal::error("Unspecified command.").
+    Terminal::warning("Available commands are: ".Terminal::variable(implode(', ',$availableCommands), Terminal::YELLOW));
+    exit();
+}
+$command = array_shift($argv);
+$argc--;
+if($argc>0&&!str_starts_with($argv[0],'-')) {
+    $function = array_shift($argv);
+    $argc--;
+}
+
+$arguments = parse($argv);
+if(!isset($arguments["flags"])) {
+    $arguments["flags"] = [];
+}
+
+if(isset($function)) {
+    $arguments["function"] = $function;
+}
+define("RELATIVE_PATH", "");
+define("ACCESSED_WITH_CLI", true);
+try {
+    echo call_user_func_array($command, $arguments)."\n";
+}
+catch(ArgumentCountError $e) {
+    echo Terminal::error($e->getMessage());
+}
+
+
+function parse($argv) {
+    $arguments = [];
+    foreach($argv as $arg) {
+        if(str_starts_with($arg, '--')) {
+            $arg = ltrim($arg, '-');
+            $arguments["flags"][] = $arg;
+        }
+        elseif(str_starts_with($arg, '-')) {
+            $arg = ltrim($arg,'-');
+            $argval = explode(':',$arg);
+            $arguments[$argval[0]] = $argval[1];
+        }
+    }
+    ksort($arguments);
+    return $arguments;
+}
+
+function database(string $function, string $name, array $flags): string
+{
+    
+    require_once "Framework/Connection/Connection.php";
+    require_once "Framework/Connection/QueryBuilder.php";
+    require_once "Framework/Database/DatabaseBuilder.php";
+    require_once "Framework/Database/TableBuilder.php";
+    require_once "Framework/Database/sqli_connection.php";
+    switch ($function) {
+        case "create": {
+            if(in_array('recreate',$flags)) {
+                echo DatabaseBuilder::delete($name);
+            }
+            echo DatabaseBuilder::create($name);
+            if(in_array('seed', $flags)) {
+                echo DatabaseBuilder::seed($name);
+            }
+            return "";
+        }
+        case "delete": {
+            return DatabaseBuilder::delete($name);
+        }
+        case "flush": {
+            return DatabaseBuilder::flush($name);
+        }
+        case "seed": {
+            return DatabaseBuilder::seed($name);
+        }
+        default: {
+            return Terminal::error("Command doesn't exist");
+        }
+    }
+}
+
+function table(string $function, string $name, array $flags): string
+{
+    return Terminal::println("Table name `".Terminal::variable($name, Terminal::RED)."` nig", Terminal::RED);
+}
