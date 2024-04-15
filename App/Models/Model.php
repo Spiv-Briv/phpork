@@ -185,7 +185,7 @@ abstract class Model implements Stringable, SqlQueryCastable
         $object = new $className();
         $casts = get_class_vars(get_called_class())["types"];
         foreach ($columns as $column) {
-            if(!array_key_exists($column, $singleQuery)) {
+            if (!array_key_exists($column, $singleQuery)) {
                 throw new UndefinedPropertyException();
             }
             if (array_key_exists($column, $casts)) {
@@ -195,7 +195,7 @@ abstract class Model implements Stringable, SqlQueryCastable
                             break;
                         }
                     case 'float': {
-                        $object->$column = TypeCast::float($singleQuery[$column]);
+                            $object->$column = TypeCast::float($singleQuery[$column]);
                             break;
                         }
                     case 'array':
@@ -222,7 +222,11 @@ abstract class Model implements Stringable, SqlQueryCastable
                             break;
                         }
                     default: {
-                            throw new UnknownCastException("Defined cast doesn't exists", 1);
+                            if (class_exists($casts[$column])) {
+                                $object->$column = TypeCast::model($singleQuery[$column], $casts[$column]);
+                            } else {
+                                throw new UnknownCastException("Defined cast doesn't exists", 1);
+                            }
                         }
                 }
             } elseif (is_numeric($singleQuery[$column])) {
@@ -250,44 +254,44 @@ abstract class Model implements Stringable, SqlQueryCastable
         $table = self::getTableName();
         $columns = self::getColumns();
         $columnCount = count($columns);
-        
+
         $values = [];
         foreach (get_object_vars($this) as $index => $var) {
             if (is_a($var, 'DateTime')) {
                 if (self::getType($index) == 'datetime') {
-                    $values []= "" . $var->format("Y-m-d H:i:s") . "";
+                    $values[] = "" . $var->format("Y-m-d H:i:s") . "";
                 } elseif (self::getType($index) == "date") {
-                    $values []= "" . $var->format("Y-m-d") . "";
+                    $values[] = "" . $var->format("Y-m-d") . "";
                 } elseif (self::getType($index) == "time") {
-                    $values []= "" . $var->format("H:i:s") . "";
+                    $values[] = "" . $var->format("H:i:s") . "";
                 }
             } elseif (gettype($var) == 'array') {
-                $values []= "[" . implode(',', $var) . "]";
+                $values[] = "[" . implode(',', $var) . "]";
             } else {
-                $values []= "$var";
+                $values[] = "$var";
             }
         }
         $html = [
             "<table border='1' style='background-color: var(--color-secondary); margin: 5px; border-collapse: collapse; text-align: center;'>",
-                "<thead style='background-color: var(--color-primary);'>",
-                    "<tr>",
-                        "<th style='padding: 10px' colspan='$columnCount'>$table</th>",
-                    "</tr>",
-                "</thead>",
-                "<tbody>",
-                    "<tr>",
-                        "<td style='padding: 10px'>",
-                        implode("</td><td style='padding: 10px'>", $columns),
-                        "</td>",
-                    "</tr>",
-                "</tbody>",
-                "<tfoot style='background-color: var(--color-third);'>",
-                    "<tr>",
-                        "<td style='padding: 10px'>",
-                        implode("</td><td style='padding: 10px'>", $values),
-                        "</td>",
-                    "</tr>",
-                "</tfoot>",
+            "<thead style='background-color: var(--color-primary);'>",
+            "<tr>",
+            "<th style='padding: 10px' colspan='$columnCount'>$table</th>",
+            "</tr>",
+            "</thead>",
+            "<tbody>",
+            "<tr>",
+            "<td style='padding: 10px'>",
+            implode("</td><td style='padding: 10px'>", $columns),
+            "</td>",
+            "</tr>",
+            "</tbody>",
+            "<tfoot style='background-color: var(--color-third);'>",
+            "<tr>",
+            "<td style='padding: 10px'>",
+            implode("</td><td style='padding: 10px'>", $values),
+            "</td>",
+            "</tr>",
+            "</tfoot>",
             "</table>"
         ];
         return implode($html);

@@ -2,6 +2,7 @@
 
 namespace Framework\Connection;
 
+use App\Models\Model;
 use DateTime;
 use Framework\Exceptions\CastException;
 
@@ -55,5 +56,20 @@ class TypeCast {
     static function datetime(string $variable): DateTime
     {
         return new DateTime($variable);
+    }
+
+    static function datetimeArray(string $variable): array
+    {
+        $array = explode(',', $variable);
+        $newArray = [];
+        foreach($array as $item) {
+            $newArray[] = self::datetime($item);
+        }
+        return $newArray;
+    }
+
+    static function model(string $variable, string $model): ?Model
+    {
+        return $model::find((int)$variable);
     }
 }

@@ -131,7 +131,6 @@ foreach (scandir(RELATIVE_PATH.'/App/Collections') as $item) {
     }
 }
 require_once RELATIVE_PATH."/App/Models/Model.php";
-// require_once RELATIVE_PATH."/App/Models/Racer.php";
 foreach (scandir(RELATIVE_PATH.'/App/Models') as $item) {
     if($item!='.'&&$item!='..'&&$item!="Model") {
         require_once RELATIVE_PATH."/App/Models/$item";
