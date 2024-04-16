@@ -120,6 +120,8 @@ require_once "Framework/Exceptions/UndefinedPropertyException.php";
 require_once "Framework/Exceptions/CastException.php";
 require_once "Framework/Exceptions/NotNumericException.php";
 require_once "Framework/Exceptions/UnknownCastException.php";
+require_once "Framework/Exceptions/CollectionTypeNotMatchedException.php";
+require_once "Framework/Exceptions/CollectionAlreadyRestrictedException.php";
 require_once "Framework/Interfaces/SqlQueryCastable.php";
 require_once "Framework/Connection/TypeCast.php";
 

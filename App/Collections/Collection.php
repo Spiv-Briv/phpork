@@ -7,6 +7,8 @@ use Countable;
 use ArrayAccess;
 use App\Models\Model;
 use DivisionByZeroError;
+use Framework\Exceptions\CollectionAlreadyRestrictedException;
+use Framework\Exceptions\CollectionTypeNotMatchedException;
 use Framework\Exceptions\NotNumericException;
 use Framework\Exceptions\UndefinedPropertyException;
 
@@ -22,12 +24,27 @@ class Collection implements Countable, Iterator, ArrayAccess
 
     protected array $elements = [];
     protected int $position = 0;
+    private ?string $type = null;
 
     function __construct(array $elements = [])
     {
+        if(!empty($elements)) {
+            $this->restrictCollectionType($elements[0]);
+        }
         foreach ($elements as $element) {
+            if($element::class!=$this->type) {
+                throw new CollectionTypeNotMatchedException();
+            }
             $this->elements[] =  $element;
         }
+    }
+
+    private function restrictCollectionType(Model $class): void
+    {
+        if(!is_null($this->type)) {
+            throw new CollectionAlreadyRestrictedException();
+        }
+        $this->type = $class::class;
     }
 
     /**
@@ -265,6 +282,12 @@ class Collection implements Countable, Iterator, ArrayAccess
 
     function offsetSet(mixed $offset, mixed $value): void
     {
+        if(empty($this->elements)) {
+            $this->type = $value::class;
+        }
+        elseif($value::class!=$this->type) {
+            throw new CollectionTypeNotMatchedException();
+        }
         if (empty($offset)) {
             $this->elements[] = $value;
         } else {
