@@ -7,6 +7,11 @@ use DateTime;
 use Framework\Exceptions\CastException;
 
 class TypeCast {
+    static function bool(string $variable): bool
+    {
+        return boolval($variable);
+    }
+
     static function int(string $variable): int
     {
         if(!is_numeric($variable)) {
@@ -44,6 +49,16 @@ class TypeCast {
         $newArray = [];
         foreach($array as $item) {
             $newArray[] = self::int($item);
+        }
+        return $newArray;
+    }
+
+    static function boolArray(string $variable): array
+    {
+        $array = explode(',',$variable);
+        $newArray = [];
+        foreach($array as $item) {
+            $newArray[] = self::bool($item);
         }
         return $newArray;
     }
