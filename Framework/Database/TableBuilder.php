@@ -95,6 +95,14 @@ class TableBuilder {
         return $this->addColumn($columnName, "BIGINT","20", (string)$default, $nullable, $extra);
     }
 
+    function float(string $columnName, ?float $default = null, bool $nullable = false, array $extra = []): TableBuilder
+    {
+        if(is_null($default)) {
+            return $this->addColumn($columnName, "FLOAT", null, null, $nullable, $extra);
+        }
+        return $this->addColumn($columnName, "FLOAT", null, (string)$default, $nullable, $extra);
+    }
+
     function decimal(string $columnName, int $size = 10, int $decimal = 0, ?float $default = null, bool $nullable = false, array $extra = []): TableBuilder
     {
         if(is_null($default)) {

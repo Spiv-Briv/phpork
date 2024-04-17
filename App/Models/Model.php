@@ -18,13 +18,14 @@ abstract class Model implements Stringable, SqlQueryCastable
     protected static array $columns;
     protected static array $types = [];
     protected static string $linkedProperty = "id";
+    protected static string $collection = "App\Collections\Collection";
 
     /**
      * @return QueryBuilder
      */
     public static function query(): QueryBuilder
     {
-        return new QueryBuilder(self::getTableName());
+        return new QueryBuilder(self::getTableName(), get_called_class());
     }
 
     /**
@@ -91,7 +92,6 @@ abstract class Model implements Stringable, SqlQueryCastable
      */
     public static function find(int $id): ?self
     {
-
         $query = self::query()->where('id', QueryBuilder::EQUALS, (string)$id)->first();
         if (empty($query)) {
             return null;
@@ -133,8 +133,7 @@ abstract class Model implements Stringable, SqlQueryCastable
      */
     public static function create(array $data, bool $print = false): bool|string
     {
-        $table = self::getTableName();
-        $query = new QueryBuilder($table);
+        $query = self::query();
         if ($print) {
             return $query->createQuery($data);
         }
@@ -148,9 +147,7 @@ abstract class Model implements Stringable, SqlQueryCastable
      */
     public function update(array $data, bool $print = false): bool|string
     {
-
-        $table = self::getTableName();
-        $query = new QueryBuilder($table);
+        $query = self::query();
         $linkedProperty = self::getLinkedProperty();
         if ($print) {
             return $query->updateQuery($this->$linkedProperty, $data, $linkedProperty);
@@ -164,8 +161,7 @@ abstract class Model implements Stringable, SqlQueryCastable
      */
     public function delete(bool $print = false): bool|string
     {
-        $table = self::getTableName();
-        $query = new QueryBuilder($table);
+        $query = self::query();
         $linkedProperty = self::getLinkedProperty();
         if ($print) {
             return $query->deleteQuery($this->$linkedProperty, $linkedProperty);

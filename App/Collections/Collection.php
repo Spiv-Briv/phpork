@@ -210,7 +210,7 @@ class Collection implements Countable, Iterator, ArrayAccess
         if(empty($this->elements)) {
             return 0;
         }
-        if(!in_array($property, $this->elements[0]::getColumns())) {
+        if(!in_array($property, $this->type::getColumns())) {
             throw new UndefinedPropertyException();
         }
         $sum = 0;
@@ -237,7 +237,7 @@ class Collection implements Countable, Iterator, ArrayAccess
         if(empty($this->elements)) {
             throw new DivisionByZeroError();
         }
-        if(!in_array($property, $this->elements[0]::getColumns())) {
+        if(!in_array($property, $this->type::getColumns())) {
             throw new UndefinedPropertyException();
         }
         if(is_null($round)) {
@@ -429,8 +429,8 @@ class Collection implements Countable, Iterator, ArrayAccess
         if (empty($this->elements)) {
             return 'Empty collection';
         }
-        $table = $this->elements[0]::getTableName();
-        $columns = $this->elements[0]::getColumns();
+        $table = $this->type::getTableName();
+        $columns = $this->type::getColumns();
         $columnCount = count($columns);
         $superValues = [];
         $elementOffset = 0;

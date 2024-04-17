@@ -13,14 +13,35 @@ class DatabaseBuilder {
     {
         $tables = [];
 
-        $buffer = new TableBuilder("example_table_1");
+        $buffer = new TableBuilder("game");
         $tables[] = $buffer->primary()
-        ->integer("table_2_id");
+        ->string('name',25)
+        ->string('surname',35)
+        ->date('birthdate')
+        ->date('date')
+        ->integer('team')
+        ->integer('country');
 
-        $buffer = new TableBuilder("example_table_2");
+        $buffer = new TableBuilder("countries");
         $tables[] = $buffer->primary()
-        ->string("text_check");
+        ->string('name',40)
+        ->string('shortcut',4)
+        ->string('colors',30);
 
+        $buffer = new TableBuilder("teams");
+        $tables[] = $buffer->primary()
+        ->string("city",40)
+        ->string('sponsor',40)
+        ->string("trainer",70)
+        ->integer("league")
+        ->integer('country_id',1)
+        ->integer('estabilished')
+        ->string('stadium_name',45)
+        ->integer('stadium_capacity')
+        ->float('stadium_attendance')
+        ->integer('ticket_price')
+        ->integer('budget',0)
+        ->string("colors",30);
 
         return $tables;
     }
