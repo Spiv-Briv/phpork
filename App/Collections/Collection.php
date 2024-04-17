@@ -39,6 +39,9 @@ class Collection implements Countable, Iterator, ArrayAccess
         }
     }
 
+    /** @param Model $class
+     *  @throws CollectionAlreadyrestrictedCollection
+     */
     private function restrictCollectionType(Model $class): void
     {
         if(!is_null($this->type)) {
@@ -154,11 +157,53 @@ class Collection implements Countable, Iterator, ArrayAccess
         return $this;
     }
 
+    /** Returns first element of collection
+     * @return Model|null
+     */
+    public function first(): ?Model
+    {
+        if(count($this->elements)==0) {
+            return null;
+        }
+        return $this->elements[0];
+    }
+
+    /** Returns last element of collection
+     * @return Model|null
+     */
+    public function last(): ?Model
+    {
+        if(count($this->elements)==0) {
+            return null;
+        }
+        return end($this->elements);
+    }
+
+    /** Limits collection to items having value between min (inclusive) and max (inclusive)
+     * @param string $property
+     * @param mixed $min minimal value
+     * @param mixed $max maximal value
+     * @return Collection for chaining purposes
+     */
+    public function between(string $property, mixed $min, mixed $max): Collection
+    {
+        $elements = $this->elements;
+        for ($i = count($elements) - 1; $i >= 0; $i--) {
+            if(!($min<=$elements[$i]->$property&&$elements[$i]->$property<=$max)) {
+                unset($elements[$i]);
+            }
+        }
+        $this->elements = array_values($elements);
+
+        return $this;
+    }
+
     /**
      * Returns sum of given property from all models in collection.
      * @throws NotNumericException When at least one property value is not numeric
      * @throws UndefinedPropertyException When property is not defined in model
      * @param string $property Property name
+     * @return float
      */
     function sum(string $property): float
     {
@@ -203,7 +248,9 @@ class Collection implements Countable, Iterator, ArrayAccess
 
     /**
      * Sorts collection by given properties
-     * @param string|array $properties 
+     * @param string|array $properties Properties to sort in importance order
+     * @param string|array $ascending Array corresponding to $properties array if sorted values should be in ascending or descending order. If array is shorter than $properties array, it uses last value in this array
+     * @return Collection Sorted collection
      */
     function sort(string|array $properties = "id", bool|array $ascending = true): ?self
     {
@@ -242,6 +289,78 @@ class Collection implements Countable, Iterator, ArrayAccess
                 return $subA->$property - $subB->$property;
             }
         });
+        return $this;
+    }
+
+    /** Merges two collections into one
+     * @param Collection $collection Collection to merge with
+     * @return Collection for chaining purposes
+     */
+    function merge(Collection $collection): Collection
+    {
+        foreach($collection as $model) {
+            $contains = false;
+            foreach($this as $element) {
+                if($element == $model) {
+                    $contains = true;
+                    break;
+                }
+            }
+            if(!$contains) {
+                $this->elements[] = $model;
+            }
+        }
+        return $this;
+    }
+
+    /** Removes repeated models from collection 
+     * @param Collection $collection Collection containeing models to remove
+     * @return Collection for chainging purposes
+    */
+    function diff(Collection $collection): Collection
+    {
+        $elements = [];
+        foreach($collection as $item) {
+            $elements[] = $item;
+        }
+        $this->elements = array_diff($this->elements, $elements);
+        $this->elements = array_values($this->elements);
+        return $this;
+    }
+
+    /**
+     * Checks, if given model is in this collection
+     * @param Model $model
+     * @return bool
+     */
+    function has(Model $model): bool
+    {
+        return in_array($model, $this->elements);
+    }
+
+    /** Reshuffles indexes in collection
+     * @return Collection for chaining purposes
+     */
+    function revalue(): Collection
+    {
+        $elements = [];
+        foreach($this->elements as $element) {
+            $elements[] = $element;
+        }
+        $this->elements = $elements;
+        return $this;
+    }
+
+    /** Swaps elements in collection
+     * @param int $index1 index of element
+     * @param int $index2 target index
+     * @return Collection
+     */
+    function swap(int $index1, int $index2): Collection
+    {
+        $buffer = $this->elements[$index1];
+        $this->elements[$index1] = $this->elements[$index2];
+        $this->elements[$index2] = $buffer;
         return $this;
     }
 

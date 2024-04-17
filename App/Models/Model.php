@@ -63,6 +63,28 @@ abstract class Model implements Stringable, SqlQueryCastable
         return $collection;
     }
 
+    /** @param string $column
+     *  @param string $min
+     *  @param string $max
+     *  @return Colleciton
+     */
+    public static function between(string $column, string $min, string $max): Collection
+    {
+        $collection = self::getCollectionObject();
+        $rawCollection = self::query()
+        ->where($column, Collection::GREATER_OR_EQUAL, $min)
+        ->where($column, Collection::LESS_OR_EQUAL, $max)
+        ->getAll();
+        if (empty($rawCollection)) {
+            return $collection;
+        }
+        foreach ($rawCollection as $item) {
+            $collection[] = self::declareObject($item);
+        }
+
+        return $collection;
+    }
+
     /**
      * @param int $id
      * @return static
@@ -78,7 +100,6 @@ abstract class Model implements Stringable, SqlQueryCastable
     }
 
     /**
-     * @param bool $fromIdOne
      * @return static
      */
     public static function first(): ?self
@@ -190,6 +211,10 @@ abstract class Model implements Stringable, SqlQueryCastable
             }
             if (array_key_exists($column, $casts)) {
                 switch (self::getType($column)) {
+                    case 'bool': {
+                            $object->$column = TypeCast::bool($singleQuery[$column]);
+                            break;
+                    }
                     case 'int': {
                             $object->$column = TypeCast::int($singleQuery[$column]);
                             break;
@@ -215,6 +240,9 @@ abstract class Model implements Stringable, SqlQueryCastable
                             $object->$column = TypeCast::floatArray($singleQuery[$column]);
                             break;
                         }
+                    case 'bool[]': {
+                            $object->$column = TypeCast::boolArray($singleQuery[$column]);
+                    }
                     case 'datetime':
                     case 'time':
                     case 'date': {
