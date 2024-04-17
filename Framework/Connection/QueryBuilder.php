@@ -2,6 +2,7 @@
 
 namespace Framework\Connection;
 
+use App\Collections\Collection;
 use Framework\Interfaces\SqlQueryCastable;
 
 class QueryBuilder {
@@ -19,10 +20,12 @@ class QueryBuilder {
     private array $whereGroups;
     private array $groups;
     private array $orders;
+    private string $modelName;
 
-    function __construct(string $table)
+    function __construct(string $table, string $modelName)
     {
         $this->table = $table;
+        $this->modelName = $modelName;
     }
 
     function column(string $columnName, ?string $alias = null): QueryBuilder
@@ -82,6 +85,31 @@ class QueryBuilder {
     function orderDesc(string $columnName): QueryBuilder
     {
         return $this->order($columnName, "DESC");
+    }
+
+    function get(?int $length = null, ?int $rowOffset = null): array
+    {
+        return $this->executeSelectQuery($this->parseSelectQuery($length, $rowOffset));
+    }
+
+    function first(): array
+    {
+        return $this->executeSelectQuery($this->parseSelectQuery(1));
+    }
+
+    function getAll(): array
+    {
+        return $this->executeSelectQuery($this->parseSelectQuery());
+    }
+
+    function toCollection(): Collection
+    {
+        $collection = new Collection();
+        foreach($this->getAll() as $item) {
+            echo $this->modelName::find((int)$item["id"]);
+            $collection[] = $this->modelName::find((int)$item["id"]);
+        }
+        return $collection;
     }
 
     private function parseWhereGroups(): void
@@ -151,21 +179,6 @@ class QueryBuilder {
         return $_ENV["mysqli"]->rawQuery(
             $this->createQuery($data)
         );
-    }
-
-    function getAll(): array
-    {
-        return $this->executeSelectQuery($this->parseSelectQuery());
-    }
-
-    function get(?int $length = null, ?int $rowOffset = null): array
-    {
-        return $this->executeSelectQuery($this->parseSelectQuery($length, $rowOffset));
-    }
-
-    function first(): array
-    {
-        return $this->executeSelectQuery($this->parseSelectQuery(1));
     }
 
     private function parseSelectQuery(?int $maxLength = null, ?int $startRow = null): string
