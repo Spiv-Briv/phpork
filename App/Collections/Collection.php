@@ -25,6 +25,7 @@ class Collection implements Countable, Iterator, ArrayAccess
     protected array $elements = [];
     protected int $position = 0;
     private ?string $type = null;
+    private int $elementsPerPage = 5;
 
     function __construct(array $elements = [])
     {
@@ -101,6 +102,16 @@ class Collection implements Countable, Iterator, ArrayAccess
         $this->elements = $elements;
         $this->rewind();
         return $this;
+    }
+
+    /**
+     * Pagination function for collection
+     * @param int $page number of page to return (first page is 0)
+     * @return Collection collection separated from collection where function was called
+     */
+    function page(int $page): Collection
+    {
+        return new Collection(array_slice($this->elements, 0 + $page * $this->elementsPerPage, $this->elementsPerPage));
     }
 
     /**
