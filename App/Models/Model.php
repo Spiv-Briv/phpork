@@ -18,6 +18,7 @@ abstract class Model implements Stringable, SqlQueryCastable
     protected static array $columns;
     protected static array $types = [];
     protected static string $linkedProperty = "id";
+    protected static ?array $stringTree = null;
     protected static string $collection = "App\Collections\Collection";
 
     /**
@@ -73,9 +74,9 @@ abstract class Model implements Stringable, SqlQueryCastable
     {
         $collection = self::getCollectionObject();
         $rawCollection = self::query()
-        ->where($column, Collection::GREATER_OR_EQUAL, $min)
-        ->where($column, Collection::LESS_OR_EQUAL, $max)
-        ->getAll();
+            ->where($column, Collection::GREATER_OR_EQUAL, $min)
+            ->where($column, Collection::LESS_OR_EQUAL, $max)
+            ->getAll();
         if (empty($rawCollection)) {
             return $collection;
         }
@@ -210,7 +211,7 @@ abstract class Model implements Stringable, SqlQueryCastable
                     case 'bool': {
                             $object->$column = TypeCast::bool($singleQuery[$column]);
                             break;
-                    }
+                        }
                     case 'int': {
                             $object->$column = TypeCast::int($singleQuery[$column]);
                             break;
@@ -238,7 +239,7 @@ abstract class Model implements Stringable, SqlQueryCastable
                         }
                     case 'bool[]': {
                             $object->$column = TypeCast::boolArray($singleQuery[$column]);
-                    }
+                        }
                     case 'datetime':
                     case 'time':
                     case 'date': {
@@ -270,29 +271,51 @@ abstract class Model implements Stringable, SqlQueryCastable
         return get_class_vars(get_called_class())["table"];
     }
 
+    public static function getStringTree(): ?array
+    {
+        return get_class_vars(get_called_class())["stringTree"];
+    }
+
+    function toSqlString(): string
+    {
+        $linkedProperty = self::getLinkedProperty();
+        return "{$this->$linkedProperty}";
+    }
+
     /**
      * @return string
      */
     public function __toString(): string
     {
         $table = self::getTableName();
-        $columns = self::getColumns();
+        if(is_null(self::getStringTree())) {
+            $columns = self::getColumns();
+        }
+        else {
+            $columns = self::getStringTree();
+        }
         $columnCount = count($columns);
-
         $values = [];
-        foreach (get_object_vars($this) as $index => $var) {
-            if (is_a($var, 'DateTime')) {
-                if (self::getType($index) == 'datetime') {
-                    $values[] = "" . $var->format("Y-m-d H:i:s") . "";
-                } elseif (self::getType($index) == "date") {
-                    $values[] = "" . $var->format("Y-m-d") . "";
-                } elseif (self::getType($index) == "time") {
-                    $values[] = "" . $var->format("H:i:s") . "";
+        foreach ($columns as $column) {
+            $variableNameArray = explode(".", $column);
+            $variableName = $variableNameArray[0];
+            $variable = $this->$variableName;
+            if (is_a($variable, 'DateTime')) {
+                echo "{$variableName} -> datetime<br/>";
+                if (self::getType($column) == 'datetime') {
+                    $values[] = "" . $variable->format("Y-m-d H:i:s") . "";
+                } elseif (self::getType($column) == "date") {
+                    $values[] = "" . $variable->format("Y-m-d") . "";
+                } elseif (self::getType($column) == "time") {
+                    $values[] = "" . $variable->format("H:i:s") . "";
                 }
-            } elseif (gettype($var) == 'array') {
-                $values[] = "[" . implode(',', $var) . "]";
+            } elseif($this->$variableName instanceof Model && count($variableNameArray)>1) {
+                $variableProperty = $variableNameArray[1];
+                $values[] = $variable->$variableProperty;
+            } elseif (gettype($variable) == 'array') {
+                $values[] = "[" . implode(',', $variable) . "]";
             } else {
-                $values[] = "$var";
+                $values[] = "$variable";
             }
         }
         $html = [
@@ -319,11 +342,5 @@ abstract class Model implements Stringable, SqlQueryCastable
             "</table>"
         ];
         return implode($html);
-    }
-
-    function toSqlString(): string
-    {
-        $linkedProperty = self::getLinkedProperty();
-        return "{$this->$linkedProperty}";
     }
 }
