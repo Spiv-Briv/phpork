@@ -430,25 +430,36 @@ class Collection implements Countable, Iterator, ArrayAccess
             return 'Empty collection';
         }
         $table = $this->type::getTableName();
-        $columns = $this->type::getColumns();
+        if(is_null($this->type::getStringTree())) {
+            $columns = $this->type::getColumns();
+        }
+        else {
+            $columns = $this->type::getStringTree();
+        }
         $columnCount = count($columns);
         $superValues = [];
         $elementOffset = 0;
         foreach ($this->elements as $element) {
             $values = [];
-            foreach (get_object_vars($element) as $index => $var) {
-                if (is_a($var, 'DateTime')) {
-                    if ($element::getType($index) == 'datetime') {
-                        $values[] = "" . $var->format("Y-m-d H:i:s") . "";
-                    } elseif ($element::getType($index) == "date") {
-                        $values[] = "" . $var->format("Y-m-d") . "";
-                    } elseif ($element::getType($index) == "time") {
-                        $values[] = "" . $var->format("H:i:s") . "";
+            foreach ($columns as $column) {
+                $variableNameArray = explode(".", $column);
+                $variableName = $variableNameArray[0];
+                $variable = $element->$variableName;
+                if (is_a($variable, 'DateTime')) {
+                    if ($element::getType($column) == 'datetime') {
+                        $values[] = "" . $variable->format("Y-m-d H:i:s") . "";
+                    } elseif ($element::getType($column) == "date") {
+                        $values[] = "" . $variable->format("Y-m-d") . "";
+                    } elseif ($element::getType($column) == "time") {
+                        $values[] = "" . $variable->format("H:i:s") . "";
                     }
-                } elseif (gettype($var) == 'array') {
-                    $values[] = "[" . implode(',', $var) . "]";
+                } elseif($element->$variableName instanceof Model && count($variableNameArray)>1) {
+                    $variableProperty = $variableNameArray[1];
+                    $values[] = $variable->$variableProperty;
+                } elseif (gettype($variable) == 'array') {
+                    $values[] = "[" . implode(',', $variable) . "]";
                 } else {
-                    $values[] = "$var";
+                    $values[] = "$variable";
                 }
             }
             $superValues[] = "<td style='padding: 10px; background-color: var(--color-secondary)'>" . $elementOffset++ . "</td><td style='padding: 10px;'>" . implode("</td><td style='padding: 10px;'>", $values) . "</td>";
