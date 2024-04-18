@@ -29,6 +29,16 @@ abstract class Model implements Stringable, SqlQueryCastable
         return new QueryBuilder(self::getTableName(), get_called_class());
     }
 
+    /** 
+     * Staticly called pagination function equivalent to Model::getAll()->page($page)
+     * @param int $page number of page to return (first page is 0)
+     * @return Collection
+    */
+    public static function page(int $page): Collection
+    {
+        return self::getAll()->page($page);
+    }
+
     /**
      * @param string $column
      * @param string $operator
