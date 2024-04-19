@@ -63,7 +63,7 @@ class DatabaseBuilder {
                 $_ENV["mysqli"]->rawQuery($table->prepareColumnQuery());
                 $_ENV["mysqli"]->setTable($table->tableName);
                 
-                $tableManager = new QueryBuilder('tables');
+                $tableManager = new QueryBuilder('tables', null);
                 $tableManager->create([
                     "table_name" => $_ENV['mysqli']->getTable(),
                     "column_count" => count($_ENV["mysqli"]->getColumns())
@@ -101,7 +101,7 @@ class DatabaseBuilder {
     static function seed(string $name): string
     {
         $_ENV["mysqli"]->setDatabase($name);
-        $files = array_diff(scandir(RELATIVE_PATH.'Framework/Database/Seeders'),['.','..']);
+        $files = array_diff(scandir(RELATIVE_PATH.'Framework/Database/Seeders'),['.','..','.gitignore']);
         $rows = 0;
         foreach($files as $file) {
             $table = explode('.',$file)[0];

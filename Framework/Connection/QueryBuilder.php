@@ -20,9 +20,9 @@ class QueryBuilder {
     private array $whereGroups;
     private array $groups;
     private array $orders;
-    private string $modelName;
+    private ?string $modelName;
 
-    function __construct(string $table, string $modelName)
+    function __construct(string $table, ?string $modelName)
     {
         $this->table = $table;
         $this->modelName = $modelName;
