@@ -51,7 +51,7 @@ class Terminal {
 
     static function print(string|int $message, string $foreground = self::DEFAULT_FOREGROUND, string $background = self::DEFAULT_BACKGROUND, string $escapeColor = self::DEFAULT): string
     {
-        if(!ACCESSED_WITH_CLI) {
+        if(SCRIPT_ORIGIN!="CLI") {
             return "";
         }
         return $foreground.$background.$message.$escapeColor;
@@ -59,14 +59,14 @@ class Terminal {
 
     static function printl(string|int $message, string $foreground = self::DEFAULT_FOREGROUND, string $background = self::DEFAULT_BACKGROUND, string $escapeColor = self::DEFAULT): string
     {
-        if(!ACCESSED_WITH_CLI) {
+        if(SCRIPT_ORIGIN!="CLI") {
             return "";
         }
         return $foreground.$background.$message.$escapeColor."\n";
     }
     static function println(string|int $message, string $foreground = self::DEFAULT_FOREGROUND, string $background = self::DEFAULT_BACKGROUND, string $escapeColor = self::DEFAULT): string
     {
-        if(!ACCESSED_WITH_CLI) {
+        if(SCRIPT_ORIGIN!="CLI") {
             return "";
         }
         return "\n".$foreground.$background.$message.$escapeColor."\n";
