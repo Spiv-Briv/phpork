@@ -11,8 +11,10 @@ use Framework\Exceptions\CollectionAlreadyRestrictedException;
 use Framework\Exceptions\CollectionTypeNotMatchedException;
 use Framework\Exceptions\NotNumericException;
 use Framework\Exceptions\UndefinedPropertyException;
+use JsonSerializable;
+use Stringable;
 
-class Collection implements Countable, Iterator, ArrayAccess
+class Collection implements Countable, Iterator, ArrayAccess, JsonSerializable, Stringable
 {
 
     const EQUALS = '=';
@@ -41,7 +43,7 @@ class Collection implements Countable, Iterator, ArrayAccess
     }
 
     /** @param Model $class
-     *  @throws CollectionAlreadyrestrictedCollection
+     *  @throws CollectionAlreadyRestrictedCollection
      */
     private function restrictCollectionType(Model $class): void
     {
@@ -107,11 +109,12 @@ class Collection implements Countable, Iterator, ArrayAccess
     /**
      * Pagination function for collection
      * @param int $page number of page to return (first page is 0)
-     * @return Collection collection separated from collection where function was called
+     * @return static collection separated from collection where function was called
      */
     function page(int $page): Collection
     {
-        return new Collection(array_slice($this->elements, 0 + $page * $this->elementsPerPage, $this->elementsPerPage));
+        $collectionName = get_called_class();
+        return new $collectionName(array_slice($this->elements, 0 + $page * $this->elementsPerPage, $this->elementsPerPage));
     }
 
     /**
@@ -435,46 +438,33 @@ class Collection implements Countable, Iterator, ArrayAccess
         return count($this->elements);
     }
 
+    function jsonSerialize(): mixed
+    {
+        return $this->elements;
+    }
+
     function __toString()
     {
         if (empty($this->elements)) {
             return 'Empty collection';
         }
         $table = $this->type::getTableName();
-        if(is_null($this->type::getStringTree())) {
-            $columns = $this->type::getColumns();
-        }
-        else {
-            $columns = $this->type::getStringTree();
-        }
-        $columnCount = count($columns);
+        $columns = [];
         $superValues = [];
         $elementOffset = 0;
         foreach ($this->elements as $element) {
-            $values = [];
-            foreach ($columns as $column) {
-                $variableNameArray = explode(".", $column);
-                $variableName = $variableNameArray[0];
-                $variable = $element->$variableName;
-                if (is_a($variable, 'DateTime')) {
-                    if ($element::getType($column) == 'datetime') {
-                        $values[] = "" . $variable->format("Y-m-d H:i:s") . "";
-                    } elseif ($element::getType($column) == "date") {
-                        $values[] = "" . $variable->format("Y-m-d") . "";
-                    } elseif ($element::getType($column) == "time") {
-                        $values[] = "" . $variable->format("H:i:s") . "";
-                    }
-                } elseif($element->$variableName instanceof Model && count($variableNameArray)>1) {
-                    $variableProperty = $variableNameArray[1];
-                    $values[] = $variable->$variableProperty;
-                } elseif (gettype($variable) == 'array') {
-                    $values[] = "[" . implode(',', $variable) . "]";
-                } else {
-                    $values[] = "$variable";
-                }
-            }
+            $values = $element->getValues(false);
             $superValues[] = "<td style='padding: 10px; background-color: var(--color-secondary)'>" . $elementOffset++ . "</td><td style='padding: 10px;'>" . implode("</td><td style='padding: 10px;'>", $values) . "</td>";
         }
+        foreach($values as $alias => $value) {
+            if(is_numeric($alias)) {
+                $columns[] = $value;
+            }
+            else {
+                $columns[] = $alias;
+            }
+        }
+        $columnCount = count($columns);
         $html = [
             "<table border='1' style='background-color: var(--color-secondary); margin: 5px; border-collapse: collapse; text-align: center;'>",
             "<thead style='background-color: var(--color-primary);'>",

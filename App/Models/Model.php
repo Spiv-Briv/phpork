@@ -11,8 +11,9 @@ use Framework\Connection\QueryBuilder;
 use Framework\Exceptions\UndefinedPropertyException;
 use Framework\Exceptions\UnknownCastException;
 use Framework\Interfaces\SqlQueryCastable;
+use JsonSerializable;
 
-abstract class Model implements Stringable, SqlQueryCastable
+abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
 {
     protected static string $table;
     protected static array $columns;
@@ -78,7 +79,7 @@ abstract class Model implements Stringable, SqlQueryCastable
     /** @param string $column
      *  @param string $min
      *  @param string $max
-     *  @return Colleciton
+     *  @return Collection
      */
     public static function between(string $column, string $min, string $max): Collection
     {
@@ -206,6 +207,47 @@ abstract class Model implements Stringable, SqlQueryCastable
         return get_class_vars(get_called_class())["columns"];
     }
 
+    /** Returns assoc array of properties */
+    function getValues(bool $json_compatible): array
+    {
+        $values = [];
+        if(is_null(self::getStringTree())) {
+            $columns = self::getColumns();
+        }
+        else {
+            $columns = self::getStringTree();
+        }
+        foreach ($columns as $alias => $column) {
+            if(is_numeric($alias)) {
+                $alias = $column;
+            }
+            $variableNameArray = explode(".", $column);
+            $variableName = $variableNameArray[0];
+            $variable = $this->$variableName;
+            if($json_compatible) {
+                $values[$alias] = $variable;
+                continue;
+            }
+            if (is_a($variable, 'DateTime')) {
+                if (self::getType($column) == 'datetime') {
+                    $values[$alias] = "" . $variable->format("Y-m-d H:i:s") . "";
+                } elseif (self::getType($column) == "date") {
+                    $values[$alias] = "" . $variable->format("Y-m-d") . "";
+                } elseif (self::getType($column) == "time") {
+                    $values[$alias] = "" . $variable->format("H:i:s") . "";
+                }
+            } elseif($this->$variableName instanceof Model && count($variableNameArray)>1) {
+                $variableProperty = $variableNameArray[1];
+                $values[$alias] = $variable->$variableProperty;
+            } elseif (gettype($variable) == 'array') {
+                $values[$alias] = "[" . implode(',', $variable) . "]";
+            } else {
+                $values[$alias] = "$variable";
+            }
+        }
+        return $values;
+    }
+
     private static function declareObject(array $singleQuery): self
     {
         $columns = self::getColumns();
@@ -292,42 +334,23 @@ abstract class Model implements Stringable, SqlQueryCastable
         return "{$this->$linkedProperty}";
     }
 
+    function jsonSerialize(): mixed
+    {
+        return $this->getValues(true);
+    }
+
     /**
      * @return string
      */
     public function __toString(): string
     {
         $table = self::getTableName();
-        if(is_null(self::getStringTree())) {
-            $columns = self::getColumns();
-        }
-        else {
-            $columns = self::getStringTree();
+        $values = $this->getValues(false);
+        $columns = [];
+        foreach($values as $alias => $value) {
+            $columns[] = $alias;
         }
         $columnCount = count($columns);
-        $values = [];
-        foreach ($columns as $column) {
-            $variableNameArray = explode(".", $column);
-            $variableName = $variableNameArray[0];
-            $variable = $this->$variableName;
-            if (is_a($variable, 'DateTime')) {
-                echo "{$variableName} -> datetime<br/>";
-                if (self::getType($column) == 'datetime') {
-                    $values[] = "" . $variable->format("Y-m-d H:i:s") . "";
-                } elseif (self::getType($column) == "date") {
-                    $values[] = "" . $variable->format("Y-m-d") . "";
-                } elseif (self::getType($column) == "time") {
-                    $values[] = "" . $variable->format("H:i:s") . "";
-                }
-            } elseif($this->$variableName instanceof Model && count($variableNameArray)>1) {
-                $variableProperty = $variableNameArray[1];
-                $values[] = $variable->$variableProperty;
-            } elseif (gettype($variable) == 'array') {
-                $values[] = "[" . implode(',', $variable) . "]";
-            } else {
-                $values[] = "$variable";
-            }
-        }
         $html = [
             "<table border='1' style='background-color: var(--color-secondary); margin: 5px; border-collapse: collapse; text-align: center;'>",
             "<thead style='background-color: var(--color-primary);'>",
