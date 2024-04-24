@@ -99,12 +99,12 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
     }
 
     /**
-     * @param int $id
+     * @param mixed $id
      * @return static
      */
-    public static function find(int $id): ?self
+    public static function find(mixed $id): ?self
     {
-        $query = self::query()->where('id', QueryBuilder::EQUALS, (string)$id)->first();
+        $query = self::query()->where(self::getLinkedProperty(), QueryBuilder::EQUALS, $id)->first();
         if (empty($query)) {
             return null;
         }
@@ -116,7 +116,7 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
      */
     public static function first(): ?self
     {
-        $query = self::query()->where('id', QueryBuilder::GREATER_OR_EQUAL, '1')->first();
+        $query = self::query()->first();
         if (empty($query)) {
             return null;
         }
@@ -179,6 +179,42 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
             return $query->deleteQuery($this->$linkedProperty, $linkedProperty);
         }
         return $query->delete($this->$linkedProperty, $linkedProperty);
+    }
+
+    public function save(): bool
+    {
+        $data = [];
+        foreach($this->getColumns() as $column) {
+            $value = $this->$column;
+            if(is_array($value)) {
+                $data[$column] = implode(',',$value);
+            }
+            elseif (is_a($value, 'DateTime')) {
+                if (self::getType($column) == 'datetime') {
+                    $data[$column] = $value->format("Y-m-d H:i:s");
+                } elseif (self::getType($column) == "date") {
+                    $data[$column] = $value->format("Y-m-d");
+                } elseif (self::getType($column) == "time") {
+                    $data[$column] = $value->format("H:i:s");
+                }
+            }
+            elseif($value instanceof Model) {
+                $data[$column] = $value->toSqlString();
+            }
+            else {
+                $data[$column] = $value;
+            }
+        }
+        return $this->update($data);
+    }
+
+    public function load(): self
+    {
+        $model = self::find(1);
+        foreach($model as $key => $value) {
+            $this->$key = $value;
+        }
+        return $this;
     }
 
     private static function getCollectionObject(): Collection
