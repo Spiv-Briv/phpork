@@ -410,6 +410,9 @@ class Collection implements Countable, Iterator, ArrayAccess, JsonSerializable, 
 
     function offsetGet(mixed $offset): mixed
     {
+        if(count($this->elements)<=$offset) {
+            return null;
+        }
         return $this->elements[$offset];
     }
 

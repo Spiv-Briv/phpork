@@ -12,28 +12,43 @@ require_once "./../boot.php";
     <title>Cope</title>
 </head>
 <body>
-    <?= Team::between("id", "14", "16"); ?>
-    <Container class="container"></Container>
-    <input id="page" type="number" />
-    <button onclick="getItem()">Załaduj</button>
+    <h2></h2>
+    <div id="background" style="width: 300px; height: 300px; border: 1px solid white"></div>
+    <input id="id" type="number" onchange="getItem()"/>
+    <button onclick="getItem()">Pobierz dane</button><hr/>
+    <input type="text" id="name" placeholder="name">
+    <input type="text" id="shortcut" placeholder="shortcut">
+    <input type="text" id="colors" placeholder="colors" />
+    <button onclick="setColors()">Ustaw kolor</button>
     <script>
-        let result;
-        function getItem() {
-            const container = document.getElementsByClassName('container')[0];
-            const page = document.getElementById("page").value;
-            result = fetch(`http://localhost/phpork/routes/api/index.php?page=${page}`, {method: "POST"}).then(response => {
+        async function getItem() {
+            const id = document.getElementById("id").value;
+            const team = document.getElementsByTagName('h2')[0];
+            const background = document.getElementById('background');
+            fetch(`http://localhost/phpork/routes/api/country.php?id=${id}`, {method: "GET"}).then(response => {
+                return response.json()
+            }).then(data => {
+                console.log(data);
+                team.innerText = `${data.data.id}. ${data.data.name} (${data.data.shortcut})`;
+                background.style.background = `linear-gradient(90deg, ${data.data.colors.join(',')})`;
+            });
+        }
+
+        async function setColors() {
+            const id = document.getElementById("id").value;
+            const colors = document.getElementById('colors').value;
+            const name = document.getElementById('name').value;
+            const shortcut = document.getElementById('shortcut').value
+            fetch(`http://localhost/phpork/routes/api/country.php`, {method: "POST", body: JSON.stringify({data: {"name":`"${name}"`, "shortcut":`"${shortcut}"`, "colors":`"${colors}"`}})}).then(response => {
                 console.log(response);
                 return response.json()
+            }).then(data => {
+                getItem();
             });
-            result.then(data => {
-                console.log(data);
-                container.innerHTML = "";
-                for(const item of data.data) {
-                    const div = document.createElement("div");
-                    div.innerText = `${item.id}. ${item.sponsor} ${item.city}`;
-                    container.appendChild(div);
-                }
-            });
+        }
+
+        async function createTeam() {
+            const name = document.getElementById('name')
         }
     </script>
 </body>
