@@ -4,7 +4,7 @@ use Framework\Terminal\Terminal;
 
 $file = array_shift($argv);
 $argc--;
-$availableCommands = ["database","table"];
+$availableCommands = ["database","table","make"];
 if($argc==0) {
     echo Terminal::error("Unspecified command.").
     Terminal::warning("Available commands are: ".Terminal::variable(implode(', ',$availableCommands), Terminal::YELLOW));

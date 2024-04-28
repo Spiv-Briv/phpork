@@ -91,4 +91,10 @@ class Terminal {
     {
         return self::printl($message, Terminal::GREEN);
     }
+
+    static function prompt(string|int $message): string
+    {
+        echo self::print($message, self::CYAN);
+        return trim(fread(STDIN, 200));
+    }
 }

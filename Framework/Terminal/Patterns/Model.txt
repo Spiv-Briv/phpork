@@ -1,0 +1,14 @@
+%s declare(strict_types=1);
+
+namespace App\Models;
+
+/**%s
+*/
+class %s extends Model
+{
+    protected static string $table = "%s";
+    protected static  array $columns = [%s];
+    protected static  array $types = [
+        %s
+    ];%s%s
+}
