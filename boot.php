@@ -36,6 +36,7 @@ loadDir(RELATIVE_PATH."Framework", [
     RELATIVE_PATH."Framework/EnvLoader.php",
     RELATIVE_PATH."Framework/Database/Seeders",
     RELATIVE_PATH."Framework/pages",
+    RELATIVE_PATH."Framework/Terminal/Patterns",
     RELATIVE_PATH."Framework/Database/sqli_connection.php",
 ]);
 loadDir(RELATIVE_PATH."App/Models/Model.php");

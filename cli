@@ -3,11 +3,11 @@ require_once "boot.php";
 
 use Framework\Terminal\Terminal;
 use Framework\Database\DatabaseBuilder;
+use Framework\Database\ModelBuilder;
 
 try {
-    echo call_user_func_array($command, $arguments)."\n";
-}
-catch(ArgumentCountError $e) {
+    echo call_user_func_array($command, $arguments) . "\n";
+} catch (ArgumentCountError $e) {
     echo Terminal::error($e->getMessage());
 }
 
@@ -16,32 +16,57 @@ function database(string $function, array $params, array $flags): string
     $name = getParam($params, "name", $_ENV["MYSQLI_DATABASE"]);
     switch ($function) {
         case "create": {
-            if(in_array('recreate',$flags)) {
-                echo DatabaseBuilder::delete($name);
+                if (in_array('recreate', $flags)) {
+                    echo DatabaseBuilder::delete($name);
+                }
+                echo DatabaseBuilder::create($name);
+                if (in_array('seed', $flags)) {
+                    echo DatabaseBuilder::seed($name);
+                }
+                return "";
             }
-            echo DatabaseBuilder::create($name);
-            if(in_array('seed', $flags)) {
-                echo DatabaseBuilder::seed($name);
-            }
-            return "";
-        }
         case "delete": {
-            return DatabaseBuilder::delete($name);
-        }
+                return DatabaseBuilder::delete($name);
+            }
         case "flush": {
-            return DatabaseBuilder::flush($name);
-        }
+                return DatabaseBuilder::flush($name);
+            }
         case "seed": {
-            return DatabaseBuilder::seed($name);
-        }
+                return DatabaseBuilder::seed($name);
+            }
         default: {
-            return Terminal::error("Command doesn't exist");
-        }
+                return Terminal::error("Command doesn't exist");
+            }
     }
+}
+
+function make(string $function, array $params, array $flags): string
+{
+    $avaibleFunctions = ['model'];
+    if (empty($function)) {
+        return Terminal::error("What should I make?") . Terminal::warning('I can make: [' . Terminal::variable(implode(',', $avaibleFunctions), Terminal::WARNING) . ']');
+    }
+    switch ($function) {
+        case 'model': {
+                new ModelBuilder(
+                    getParam($params, 'name', null),
+                    getParam($params, 'table', null),
+                    getParam($params, 'columns', null),
+                    getParam($params, 'casts', null),
+                    getParam($params, 'linkedProperty', null),
+                    getParam($params, 'stringTree', null),
+                    $flags);
+                return "";
+            }
+        default: {
+                return Terminal::error("I can't make a $function");
+            }
+    }
+    return Terminal::success("function: $function");
 }
 
 function table(string $function, array $params, array $flags): string
 {
     $name = getParam($params, "name", "tables");
-    return Terminal::println("Table name `".Terminal::variable($name, Terminal::RED)."`", Terminal::RED);
+    return Terminal::println("Table name `" . Terminal::variable($name, Terminal::RED) . "`", Terminal::RED);
 }
