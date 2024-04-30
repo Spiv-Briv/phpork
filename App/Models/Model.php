@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Stringable;
+use JsonSerializable;
 use App\Collections\Collection;
 use Framework\Connection\TypeCast;
 use Framework\Connection\QueryBuilder;
-use Framework\Exceptions\UndefinedPropertyException;
-use Framework\Exceptions\UnknownCastException;
+use Framework\Exceptions\CastException;
 use Framework\Interfaces\SqlQueryCastable;
-use JsonSerializable;
+use Framework\Exceptions\NotBooleanException;
+use Framework\Exceptions\NotNumericException;
+use Framework\Exceptions\UnknownCastException;
+use Framework\Exceptions\UndefinedPropertyException;
 
 abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
 {
@@ -20,7 +23,7 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
     protected static array $types = [];
     protected static string $linkedProperty = "id";
     protected static ?array $stringTree = null;
-    protected static string $collection = "App\Collections\Collection";
+    protected static string $collection = Collection::class;
 
     /**
      * @return QueryBuilder
@@ -34,7 +37,7 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
      * Staticly called pagination function equivalent to Model::getAll()->page($page)
      * @param int $page number of page to return (first page is 0)
      * @return Collection
-    */
+     */
     public static function page(int $page): Collection
     {
         return self::getAll()->page($page);
@@ -181,15 +184,203 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
         return $query->delete($this->$linkedProperty, $linkedProperty);
     }
 
+    public function get(string $property): mixed
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        return $this->$property;
+    }
+
+    public function set(string $property, mixed $value): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        if (!is_numeric($this->$property) && !is_a($value, $this->$property::class)) {
+            throw new CastException("Casts are mismatched", 10005);
+        }
+        $this->$property = $value;
+        return $this;
+    }
+
+    public function add(string $property, mixed $value): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        if (!is_numeric($value) || !is_numeric($this->$property)) {
+            throw new NotNumericException();
+        }
+        $this->$property += $value;
+        return $this;
+    }
+
+    public function subtract(string $property, mixed $value): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        if (!is_numeric($value) || !is_numeric($this->$property)) {
+            throw new NotNumericException();
+        }
+        $this->$property -= $value;
+        return $this;
+    }
+
+    public function multiply(string $property, mixed $value): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        if (!is_numeric($value) || !is_numeric($this->$property)) {
+            throw new NotNumericException();
+        }
+        $this->$property *= $value;
+        return $this;
+    }
+
+    public function divide(string $property, mixed $value): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        if (!is_numeric($value) || !is_numeric($this->$property)) {
+            throw new NotNumericException();
+        }
+        $this->$property /= $value;
+        return $this;
+    }
+
+    public function modulo(string $property, mixed $value): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        if (!is_numeric($value) || !is_numeric($this->$property)) {
+            throw new NotNumericException();
+        }
+        $this->$property %= $value;
+        return $this;
+    }
+
+    public function toggle(string $property): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        if (!is_bool($this->$property)) {
+            throw new NotBooleanException();
+        }
+        $this->$property = !$this->$property;
+        return $this;
+    }
+
+    public function increment(string $property): self
+    {
+        return $this->add($property, 1);
+    }
+
+    public function decrement(string $property): self
+    {
+        return $this->subtract($property, 1);
+    }
+
+    public function strReverse(string $property): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        $this->$property = strrev($this->$property);
+        return $this;
+    }
+
+    public function strPad(string $property, int $length, string $padString = " ", int $padType = STR_PAD_RIGHT): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        $this->$property = str_pad($this->$property, $length, $padString, $padType);
+        return $this;
+    }
+
+    public function subString(string $property, int $offset, ?int $length): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        $this->$property = substr($this->$property, $offset, $length);
+        return $this;
+    }
+
+    public function arrayPop(string $property, int $length = 1): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        if(!is_array($this->$property)) {
+            throw new CastException("Property is not array", 10005);
+        }
+        if($length>count($this->$property)) {
+            $this->$property = array();
+            return $this;
+        }
+        for($i = 0; $i < $length; $i++) {
+            array_pop($this->$property);
+        }
+        return $this;
+    }
+
+    public function arrayShift(string $property, int $length = 1): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        if(!is_array($this->$property)) {
+            throw new CastException("Property is not array", 10005);
+        }
+        if($length>count($this->$property)) {
+            $this->$property = array();
+            return $this;
+        }
+        for($i = 0; $i < $length; $i++) {
+            array_shift($this->$property);
+        }
+        return $this;
+    }
+
+    public function arrayPush(string $property, mixed $value): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        if(!is_array($this->$property)) {
+            throw new CastException("Property is not array", 10005);
+        }
+        array_push($this->$property, $value);
+        return $this;
+    }
+
+    public function arrayUnshift(string $property, mixed $value): self
+    {
+        if (!property_exists($this, $property)) {
+            throw new UndefinedPropertyException();
+        }
+        if(!is_array($this->$property)) {
+            throw new CastException("Property is not array", 10005);
+        }
+        array_push($this->$property, $value);
+        return $this;
+    }
+
     public function save(): bool
     {
         $data = [];
-        foreach($this->getColumns() as $column) {
+        foreach ($this->getColumns() as $column) {
             $value = $this->$column;
-            if(is_array($value)) {
-                $data[$column] = implode(',',$value);
-            }
-            elseif (is_a($value, 'DateTime')) {
+            if (is_array($value)) {
+                $data[$column] = implode(',', $value);
+            } elseif (is_a($value, 'DateTime')) {
                 if (self::getType($column) == 'datetime') {
                     $data[$column] = $value->format("Y-m-d H:i:s");
                 } elseif (self::getType($column) == "date") {
@@ -197,11 +388,9 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
                 } elseif (self::getType($column) == "time") {
                     $data[$column] = $value->format("H:i:s");
                 }
-            }
-            elseif($value instanceof Model) {
+            } elseif ($value instanceof Model) {
                 $data[$column] = $value->toSqlString();
-            }
-            else {
+            } else {
                 $data[$column] = $value;
             }
         }
@@ -210,8 +399,9 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
 
     public function load(): self
     {
-        $model = self::find(1);
-        foreach($model as $key => $value) {
+        $property = self::getLinkedProperty();
+        $model = self::find($this->$property);
+        foreach ($model as $key => $value) {
             $this->$key = $value;
         }
         return $this;
@@ -247,20 +437,19 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
     function getValues(bool $json_compatible): array
     {
         $values = [];
-        if(is_null(self::getStringTree())) {
+        if (is_null(self::getStringTree())) {
             $columns = self::getColumns();
-        }
-        else {
+        } else {
             $columns = self::getStringTree();
         }
         foreach ($columns as $alias => $column) {
-            if(is_numeric($alias)) {
+            if (is_numeric($alias)) {
                 $alias = $column;
             }
             $variableNameArray = explode(".", $column);
             $variableName = $variableNameArray[0];
             $variable = $this->$variableName;
-            if($json_compatible) {
+            if ($json_compatible) {
                 $values[$alias] = $variable;
                 continue;
             }
@@ -272,7 +461,7 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
                 } elseif (self::getType($column) == "time") {
                     $values[$alias] = "" . $variable->format("H:i:s") . "";
                 }
-            } elseif($this->$variableName instanceof Model && count($variableNameArray)>1) {
+            } elseif ($this->$variableName instanceof Model && count($variableNameArray) > 1) {
                 $variableProperty = $variableNameArray[1];
                 $values[$alias] = $variable->$variableProperty;
             } elseif (gettype($variable) == 'array') {
@@ -383,7 +572,7 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
         $table = self::getTableName();
         $values = $this->getValues(false);
         $columns = [];
-        foreach($values as $alias => $value) {
+        foreach ($values as $alias => $value) {
             $columns[] = $alias;
         }
         $columnCount = count($columns);

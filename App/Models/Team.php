@@ -20,11 +20,15 @@ class Team extends Model {
         "colors" => 'array'
     ];
     protected static string $linkedProperty = "id";
-    // protected static ?array $stringTree = [
-    //     "id",
-    //     "sponsor",
-    //     "city",
-    //     "country_id" => "country_id.id",
-    //     "country_shortcut" => "country_id.shortcut",
-    // ];
+    protected static ?array $stringTree = [
+        "id",
+        "city",
+        "sponsor",
+        "trainer",
+        "league",
+        "country" => "country_id.name",
+        "estabilished",
+        "stadium_name",
+        "colors",
+    ];
 }

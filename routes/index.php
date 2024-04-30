@@ -1,6 +1,8 @@
 <?php
 
+use App\Collections\Collection;
 use App\Models\Country;
+use App\Models\Schedule;
 use App\Models\Team;
 
 require_once "./../boot.php";
@@ -15,22 +17,13 @@ require_once "./../boot.php";
 <body>
     <?php
     echo "Before update: ";
-    $country = Country::find(1);
-    echo $country;
-    $country->name = "RZECZPOSPOLITA POLSKA";
-    $country->save();
-    echo "Updated";
-    echo $country;
-    echo "Modified";
-    $country->name = "Nigger";
-    $country->shortcut = "NIG";
-    echo $country;
-    echo "Loaded";
-    echo $country->load();
-    $country->update([
-        'name' => "Polska",
-        'shortcut' => "POL",
-    ]);
+    $team = Team::find(3);
+    $team->arrayShift('colors')->arrayPush('colors', '#FF0');
+    echo $team;
+    $newTeam = $team;
+    $newTeam->load();
+    echo $team;
+    echo $newTeam;
     ?>
 </body>
 </html>

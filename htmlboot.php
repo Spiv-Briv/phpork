@@ -8,7 +8,7 @@ function css(string $file): string
     global $css;
     if(!in_array($file,$css)) {
         $css[] = $file;
-        return "<link rel='stylesheet' href='".RELATIVE_PATH."Resources/css/".$file.".css' />";
+        return "<link rel='stylesheet' href='".RESOURCE_PATH."Resources/css/".$file.".css' />";
     }
     return "";
 }
@@ -16,24 +16,24 @@ function css(string $file): string
 /** Attach javascript file */
 function js(string $file): string
 {
-    return "<script src='".RELATIVE_PATH."Resources/js/".$file.".js'></script>";
+    return "<script src='".RESOURCE_PATH."Resources/js/".$file.".js'></script>";
 }
 
 /** Include page located in Resources/pages folder */
 function page(string $file, string $extension = 'php', bool $once = false): void
 {
     if($once) {
-        include_once RELATIVE_PATH."Resources/pages/$file.$extension";
+        include_once RESOURCE_PATH."Resources/pages/$file.$extension";
     }
     else {
-        include RELATIVE_PATH."Resources/pages/$file.$extension";
+        include RESOURCE_PATH."Resources/pages/$file.$extension";
     }
 }
 
 /** Returns path relative from routes folder. You may specify extension (php by default) */
 function route(string $file, string $extension = 'php'): string
 {
-    return RELATIVE_PATH."routes/$file.$extension";
+    return RESOURCE_PATH."routes/$file.$extension";
 }
 
 /** Attach image located in Resources/images folder. Default image extension is 'png'. If $onlyFilePath is true, it will output filepath.
@@ -54,20 +54,20 @@ function image(string $file, string $extension = "png", bool $onlyFilepath = fal
 function icon(string $file, string $extension = "svg", bool $onlyFilePath = false): string
 {
     if($onlyFilePath) {
-        return RELATIVE_PATH."Resources/icons/$file.$extension";
+        return RESOURCE_PATH."Resources/icons/$file.$extension";
     }
     else {
-        return "<img alt='$file' src='".RELATIVE_PATH."Resources/icons/$file.$extension' />";
+        return "<img alt='$file' src='".RESOURCE_PATH."Resources/icons/$file.$extension' />";
     }
 }
 
 function audio(string $file, string $extension = "mp3", bool $onlyFilePath = false): string
 {
     if($onlyFilePath) {
-        return RELATIVE_PATH."Resources/audio/$file.$extension";
+        return RESOURCE_PATH."Resources/audio/$file.$extension";
     }
     else {
-        return "<audio src='".RELATIVE_PATH."Resources/audio/$file.$extension' ></audio>";
+        return "<audio src='".RESOURCE_PATH."Resources/audio/$file.$extension' ></audio>";
     }
 }
 
@@ -75,10 +75,10 @@ function audio(string $file, string $extension = "mp3", bool $onlyFilePath = fal
 function frameworkPage(string $file, string $extension = "php", bool $once = false): void
 {
     if($once) {
-        include_once RELATIVE_PATH."Framework/$file.$extension";
+        include_once RESOURCE_PATH."Framework/$file.$extension";
     }
     else {
-        include RELATIVE_PATH."Framework/$file.$extension";
+        include RESOURCE_PATH."Framework/$file.$extension";
     }
 }
 
