@@ -43,6 +43,19 @@ class DatabaseBuilder {
         ->integer('budget',0)
         ->string("colors",30);
 
+        $buffer = new TableBuilder("schedules");
+        $tables[] = $buffer->primary()
+        ->integer("league")
+        ->integer("round")
+        ->date("date")
+        ->integer("home", null, true)
+        ->integer("away", null, true)
+        ->integer("home_result")
+        ->integer("away_result")
+        ->integer('viewers', null, true)
+        ->integer("status")
+        ->integer("season_state");
+
         return $tables;
     }
 

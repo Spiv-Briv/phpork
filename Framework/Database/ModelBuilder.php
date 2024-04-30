@@ -188,7 +188,7 @@ class ModelBuilder
             $stringTree = "\n\t" . self::STRING_TREE;
             foreach ($this->stringTree as $key => $item) {
                 if (!is_numeric($key)) {
-                    $stringTree .= "\n\t\t\"$key\" => \"$item\",\n\t\t";
+                    $stringTree .= "\n\t\t\"$key\" => \"$item\",";
                 } else {
                     $stringTree .= "\n\t\t\"$item\",";
                 }
