@@ -1,13 +1,17 @@
 <?php declare(strict_types=1);
 
 define('ROUTE_DEPTH',count(explode('/',$_SERVER['SCRIPT_NAME']))-3);
+define('RESOURCE_ROUTE_DEPTH',count(explode('/',$_SERVER['REQUEST_URI']))-3);
 $path = './';
 for($i=0;$i<ROUTE_DEPTH;$i++) {
     $path .= '../';
 }
 define('RELATIVE_PATH',$path);
-define("ACCESSED_WITH_CLI", false);
-$_ENV['RELATIVE_PATH'] = $path;
+$path = './';
+for($i=0;$i<RESOURCE_ROUTE_DEPTH;$i++) {
+    $path .= '../';
+}
+define('RESOURCE_PATH', $path);
 
 
 function loadDir(string $directory, array $ignorefiles = [], string $path = "") {
