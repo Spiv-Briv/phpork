@@ -6,7 +6,11 @@ class TableBuilder {
     public string $tableName = "";
     private array $columns = [];
     private array $indexes = [];
+    private array $constraints = [];
+    public int $indexCount = 0;
+    public int $constraintsCount = 0;
     private bool $primary_exists = false;
+    private static array $primaryKeys = [];
     private string $engine = "InnoDB";
     private string $charset = "utf8mb4";
     private string $collation = "utf8mb4_general_ci";
@@ -16,12 +20,27 @@ class TableBuilder {
         return $this;
     }
 
-    private function addIndex(string $columnName, string $indexType): TableBuilder
+    private function addIndex(string $keyType, string $columnName, string $indexName, string $using): TableBuilder
     {
         $this->indexes[] = [
-            "name" => $columnName,
-            "type" => $indexType
+            "key_type" => $keyType,
+            "column_name" => $columnName,
+            "index_name" => $indexName,
+            "using" => $using,
         ];
+        $this->indexCount++;
+        return $this;
+    }
+
+    private function addConstraint(string $columnName, string $constraintName, string $foreignTable, ?string $foreignColumn): TableBuilder
+    {
+        $this->constraints[] = [
+            "column_name" => $columnName,
+            "constraint_name" => $constraintName,
+            "foreign_table" => $foreignTable,
+            "foreign_column" => $foreignColumn,
+        ];
+        $this->constraintsCount++;
         return $this;
     }
 
@@ -43,6 +62,8 @@ class TableBuilder {
         if(!$this->primary_exists) {
             $this->integer($columnName, null, false, ["PRIMARY KEY","AUTO_INCREMENT"]);
             $this->primary_exists = true;
+            self::$primaryKeys[$this->tableName] = $columnName;
+            $this->indexCount++;
         }
         return $this;
     }
@@ -141,6 +162,14 @@ class TableBuilder {
         return $this->addColumn($columnName, "TIMESTAMP", (string)$precision, $default, $nullable, $extra);
     }
 
+    function foreign(string $columnName, string $foreignTable, ?string $foreignColumn = null, ?int $default = null, bool $nullable = false): TableBuilder
+    {
+        $this->integer($columnName, $default, $nullable);
+        $this->addIndex("KEY", $columnName, $columnName, "BTREE");
+        $this->addConstraint($columnName, $columnName, $foreignTable, $foreignColumn);
+        return $this;
+    }
+
     function prepareColumnQuery(): string
     {
         $columns = [];
@@ -192,10 +221,15 @@ class TableBuilder {
         $indexes = [];
         $query = "";
         foreach($this->indexes as $index) {
+            if($index['key_type']!="PRIMARY KEY") {
+                $index['using'] = "USING ".$index['using'];
+            }
             $indexes[] = sprintf(
-                'ADD %s (`%s`)',
-                $index['type'],
-                $index['name'],
+                'ADD %s `%s` (`%s`) %s',
+                $index['key_type'],
+                $index['column_name'],
+                $index['index_name'],
+                $index['using']
             );
         }
         if(!empty($indexes)) {
@@ -203,6 +237,34 @@ class TableBuilder {
                 'ALTER TABLE `%s` %s;',
                 $this->tableName,
                 implode(',',$indexes)
+            );
+        }
+        return $query;
+    }
+
+    function prepareConstraintsQuery(): string
+    {
+        $constraints = [];
+        $query = "";
+        foreach($this->constraints as $constraint) {
+            if(is_null($constraint['foreign_column'])) {
+                $foreignColumn = self::$primaryKeys[$constraint['foreign_table']];
+            }
+            else {
+                $foreignColumn = $constraint['foreign_column'];
+            }
+            $constraints[] = sprintf('ADD CONSTRAINT `%s` FOREIGN KEY (`%s`) REFERENCES `%s` (`%s`)',
+            $this->tableName."_".$constraint['constraint_name'],
+            $constraint['column_name'],
+            $constraint['foreign_table'],
+            $foreignColumn
+        );
+        }
+        if(!empty($constraints)) {
+            $query = sprintf(
+                'ALTER TABLE `%s` %s;',
+                $this->tableName,
+                implode(',',$constraints)
             );
         }
         return $query;
