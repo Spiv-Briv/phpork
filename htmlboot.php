@@ -1,5 +1,12 @@
 <?php declare(strict_types=1);
 
+define('RESOURCE_ROUTE_DEPTH',count(explode('/',$_SERVER['REQUEST_URI']))-3);
+$path = './';
+for($i=0;$i<RESOURCE_ROUTE_DEPTH;$i++) {
+    $path .= '../';
+}
+define('RESOURCE_PATH', $path);
+
 //shortcut functions
 $css = [];
 /** Attach css file. If css was already attached function returns empty string */
