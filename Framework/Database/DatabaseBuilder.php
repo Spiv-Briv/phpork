@@ -167,7 +167,6 @@ class DatabaseBuilder
             echo Terminal::printl("");
             foreach($tables as $table) {
                 $query = $table->prepareConstraintsQuery();
-                echo $query."\n";
                 if(!empty($query)) {
                     $_ENV["mysqli"]->rawQuery($query);
                     echo Terminal::success("Added ".Terminal::variable($table->constraintsCount,Terminal::SUCCESS)." constraints to `".Terminal::variable($table->tableName, Terminal::SUCCESS)."` table");
