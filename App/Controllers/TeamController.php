@@ -38,4 +38,9 @@ class TeamController
     {
         return Team::create(explode(',', $data), true);
     }
+
+    static function delete(string $id): string
+    {
+        return Team::find($id)->delete(true);
+    }
 }

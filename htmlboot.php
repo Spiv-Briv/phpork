@@ -1,4 +1,14 @@
 <?php declare(strict_types=1);
+$languages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+$usedLanguage = $_ENV["LANGUAGE_DEFAULT"];
+foreach($languages as $language) {
+    $language = rtrim($language, ";q=0.0..9");
+    if(file_exists(RELATIVE_PATH."Languages/$language")) {
+        $usedLanguage = $language;
+        break;
+    }
+}
+define('TRANSLATION_LANGUAGE', $usedLanguage);
 
 define('RESOURCE_ROUTE_DEPTH',count(explode('/',$_SERVER['REQUEST_URI']))-3);
 $path = './';

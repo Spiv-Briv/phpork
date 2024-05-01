@@ -7,6 +7,66 @@ for($i=0;$i<ROUTE_DEPTH;$i++) {
 }
 define('RELATIVE_PATH',$path);
 
+function strict_lang(string $key, string $lang, ... $items): ?string
+{
+    $key = explode('.', $key);
+    $file = array_shift($key).".php";
+    if(file_exists(RELATIVE_PATH."Languages/$lang/$file")) {
+        $langTable = include RELATIVE_PATH."Languages/$lang/$file";
+    }
+    elseif(file_exists(RELATIVE_PATH."Languages/".TRANSLATION_LANGUAGE."/$file")) {
+        $langTable = include RELATIVE_PATH."Languages/".TRANSLATION_LANGUAGE."/$file";
+    }
+    elseif(file_exists(RELATIVE_PATH."Languages/{$_ENV['LANGUAGE_DEFAULT']}/$file")) {
+        $langTable = include RELATIVE_PATH."Languages/{$_ENV['LANGUAGE_DEFAULT']}/$file";
+    }
+    else {
+        return null;
+    }
+    $langWord = $langTable;
+    foreach($key as $item) {
+        if(!array_key_exists($item, $langWord)) {
+            return implode('.', $key);
+        }
+        $langWord = $langWord[$item];
+    }
+    try {
+        $sentence = vsprintf($langWord, $items);
+        return $sentence;
+    }
+    catch(ValueError|TypeError $e) {
+        return implode('.', $key);
+    }
+}
+
+function lang(string $key, ... $items): ?string
+{
+    $key = explode('.', $key);
+    $file = array_shift($key).".php";
+    if(file_exists(RELATIVE_PATH."Languages/".TRANSLATION_LANGUAGE."/$file")) {
+        $langTable = include RELATIVE_PATH."Languages/".TRANSLATION_LANGUAGE."/$file";
+    }
+    elseif(file_exists(RELATIVE_PATH."Languages/{$_ENV['LANGUAGE_DEFAULT']}/$file")) {
+        $langTable = include RELATIVE_PATH."Languages/{$_ENV['LANGUAGE_DEFAULT']}/$file";
+    }
+    else {
+        return null;
+    }
+    $langWord = $langTable;
+    foreach($key as $item) {
+        if(!array_key_exists($item, $langWord)) {
+            return implode('.', $key);
+        }
+        $langWord = $langWord[$item];
+    }
+    try {
+        $sentence = vsprintf($langWord, $items);
+        return $sentence;
+    }
+    catch(ValueError|TypeError $e) {
+        return implode('.', $key);
+    }
+}
 
 function loadDir(string $directory, array $ignorefiles = [], string $path = "") {
     $path .= $directory;

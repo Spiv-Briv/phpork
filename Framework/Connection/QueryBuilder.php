@@ -130,12 +130,12 @@ class QueryBuilder {
         );
     }
 
-    function deleteQuery(int $id, string $referToColumn): string
+    function deleteQuery(mixed $id, string $referToColumn): string
     {
         return "DELETE FROM `$this->table` WHERE `$referToColumn` = '$id'";
     }
 
-    function updateQuery(int $id, array $data, string $referToColumn): string
+    function updateQuery(mixed $id, array $data, string $referToColumn): string
     {
         $columns = [];
         foreach ($data as $key => $value) {
