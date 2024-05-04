@@ -1,0 +1,7 @@
+%s declare(strict_types=1);
+
+namespace App\Collections;
+%s
+class %s extends Collection
+{%s%s
+}
