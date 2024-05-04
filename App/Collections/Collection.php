@@ -26,8 +26,8 @@ class Collection implements Countable, Iterator, ArrayAccess, JsonSerializable, 
 
     protected array $elements = [];
     protected int $position = 0;
-    private ?string $type = null;
-    private int $elementsPerPage = 5;
+    protected ?string $type = null;
+    protected int $elementsPerPage = 5;
 
     function __construct(array $elements = [])
     {
@@ -48,6 +48,9 @@ class Collection implements Countable, Iterator, ArrayAccess, JsonSerializable, 
     private function restrictCollectionType(Model $class): void
     {
         if(!is_null($this->type)) {
+			if($this->type==$class::class) {
+				return;
+			}
             throw new CollectionAlreadyRestrictedException();
         }
         $this->type = $class::class;

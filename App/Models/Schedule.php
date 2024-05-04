@@ -32,7 +32,6 @@ class Schedule extends Model
 		"season_state",
 	];
     protected static  array $types = [
-		'viewers' => 'bool',
 		'round' => "int",
         "date" => "date",
 		"home" => Team::class,

@@ -1,6 +1,7 @@
 <?php
 require_once "boot.php";
 
+use Framework\Database\CollectionBuilder;
 use Framework\Terminal\Terminal;
 use Framework\Database\DatabaseBuilder;
 use Framework\Database\ModelBuilder;
@@ -42,7 +43,7 @@ function database(string $function, array $params, array $flags): string
 
 function make(string $function, array $params, array $flags): string
 {
-    $avaibleFunctions = ['model'];
+    $avaibleFunctions = ['model', 'collection'];
     if (empty($function)) {
         return Terminal::error("What should I make?") . Terminal::warning('I can make: [' . Terminal::variable(implode(',', $avaibleFunctions), Terminal::WARNING) . ']');
     }
@@ -55,14 +56,23 @@ function make(string $function, array $params, array $flags): string
                     getParam($params, 'casts', null),
                     getParam($params, 'linkedProperty', null),
                     getParam($params, 'stringTree', null),
-                    $flags);
+                    $flags
+                );
+                return "";
+            }
+            case 'collection': {
+                new CollectionBuilder(
+                    getParam($params, 'name', null),
+                    getParam($params, 'type', null),
+                    getParam($params, 'pageSize', null),
+                    $flags
+                );
                 return "";
             }
         default: {
                 return Terminal::error("I can't make a $function");
             }
     }
-    return Terminal::success("function: $function");
 }
 
 function table(string $function, array $params, array $flags): string
