@@ -1,6 +1,6 @@
-class PostButton extends RedirectButton {
-    constructor(node, iterator, outlookName = "input_submit_default", elementName = "PostButton") {
-        super(node, elementName, iterator, outlookName, ["request"], [], ["action","function", "controller", "text"], [])
+class DeleteButton extends RedirectButton {
+    constructor(node, iterator) {
+        super(node, "DeleteButton", iterator, "delete_button_default", ["request", "confirmText"], [], ["action", "controller", "text"], [])
         this.subrender();
     }
 
@@ -12,7 +12,7 @@ class PostButton extends RedirectButton {
             this.form.removeAttribute("controller");
             this.form.appendChild(input);
         }
-        
+
         const fun = this.element.getAttribute('function');
         if (fun !== null) {
             let input = this.createElement('input',`type=hidden,name=function,value=${fun}`);
@@ -28,10 +28,10 @@ class PostButton extends RedirectButton {
         else {
             input.removeAttribute('prevent_default');
         }
-        if(this.element.getAttribute('disabled') !== null) {
-            input.setAttribute('disabled','true');
-            this.form.removeAttribute('disabled');
-        }
+        input.addEventListener("click", (e) => {
+            e.preventDefault();
+            confirm("Czy chcesz to zrobic?");
+        });
         this.form.appendChild(input);
     }
 }

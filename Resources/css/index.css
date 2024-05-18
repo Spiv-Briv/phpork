@@ -1,0 +1,23 @@
+main {
+    display: flex;
+}
+
+main > aside {
+    flex: 1;
+    border-right: 1px solid var(--color-primary);
+    margin: 100px 0;
+    padding: 0 100px;
+}
+
+main > aside > ul > li {
+    margin: 10px;
+}
+
+main > section {
+    flex: 4;
+    margin:  50px 100px;
+    padding-top: 50px;
+}
+main > section > div {
+    margin: 25px 0 50px 50px;
+}

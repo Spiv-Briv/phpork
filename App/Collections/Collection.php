@@ -27,7 +27,7 @@ class Collection implements Countable, Iterator, ArrayAccess, JsonSerializable, 
     protected array $elements = [];
     protected int $position = 0;
     protected ?string $type = null;
-    protected int $elementsPerPage = 5;
+    protected int $elementsPerPage = 20;
 
     function __construct(array $elements = [])
     {

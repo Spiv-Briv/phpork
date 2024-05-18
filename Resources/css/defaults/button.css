@@ -1,26 +1,27 @@
-form[outlook="button_default"] input[type="submit"] {
+input[outlook="input_submit_default"] {
     cursor: pointer;
-    background-color: var(--color-primary);
+    background-color: var(--black-4);
     padding: 20px;
     font-family: inherit;
     font-size: inherit;
     color: inherit;
-    border-radius: 25px 0;
+    border-radius: 15px;
     border: solid 2px;
     box-shadow: var(--size-shadow-S);
     transition-duration: 0.2s;
+    font-weight: bold;
 }
 
-form[outlook="button_default"] input[type="submit"]:hover {
+input[outlook="input_submit_default"]:hover {
     background: #FFF1;
     transition-duration: 0.2s;
 }
 
-form[outlook="button_default"] input[type="submit"]:disabled {
+input[outlook="input_submit_default"]:disabled {
     opacity: 0.6;
     cursor: no-drop;
 }
 
-form[outlook="button_default"] input[type="submit"]:disabled:hover {
-    background: var(--color-primary);
+input[outlook="input_submit_default"]:disabled:hover {
+    background: var(--black-2);
 }

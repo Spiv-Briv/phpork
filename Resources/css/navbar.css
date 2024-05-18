@@ -1,0 +1,26 @@
+nav {
+    margin: 0 125px;
+    display: flex;
+    gap: 25px;
+    align-items: start;
+    height: 60px;
+}
+nav > a {
+    text-align: center;
+    flex: 1 1 150px;
+    align-items: start;
+    margin: 0 15px;
+    padding: 10px;
+    padding-top: 15px;
+    color: var(--color-secondary);
+    border-bottom: 5px solid;
+    border-radius: var(--border-bottom-radius-L);
+    transition-duration: 0.2s;
+}
+
+nav > a:hover {
+    padding-top: 25px;
+    background-color: var(--color-secondary);
+    color: var(--color-third);
+    transition-duration: 0.2s;
+}

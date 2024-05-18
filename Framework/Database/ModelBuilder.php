@@ -20,16 +20,16 @@ class ModelBuilder
     private ?string $linkedProperty;
     private ?array $stringTree;
     private string $filename;
-    private bool $pedantic;
+    private bool $interactive;
     private bool $force;
     private bool $documentation;
 
     function __construct(?string $model, ?string $table, ?string $columns, ?string $casts, ?string $linkedProperty, ?string $stringTree, array $flags)
     {
-        $this->pedantic = in_array('pedantic', $flags);
+        $this->interactive = in_array('interactive', $flags);
         $this->force = in_array('force', $flags);
         $this->documentation = in_array('documentation', $flags);
-        if(!$this->pedantic&&is_null($model)) {
+        if(!$this->interactive&&is_null($model)) {
             echo Terminal::error("Model name not provided");
             return;
         }
@@ -37,7 +37,7 @@ class ModelBuilder
             echo Terminal::error("Model is reserved name.");
             return;
         }
-        if (!$this->pedantic&&$this->modelExist($model) && !$this->force) {
+        if (!$this->interactive&&$this->modelExist($model) && !$this->force) {
             echo Terminal::error("Model already exist.").Terminal::warning("Add ".Terminal::variable("--force", Terminal::WARNING)." flag to overwrite it");
             return;
         }
@@ -53,8 +53,8 @@ class ModelBuilder
         $this->casts = $this->parseCasts($casts);
         $this->linkedProperty = $linkedProperty;
         $this->stringTree = $this->parseStringTree($stringTree);
-        if ($this->pedantic) {
-            $this->pedanticBuild();
+        if ($this->interactive) {
+            $this->interactiveBuild();
         }
         $this->compileFile();
         echo Terminal::success("Model created");
@@ -68,7 +68,7 @@ class ModelBuilder
         }
         foreach($this->columns as $column) {
             $type = "string";
-            if(array_key_exists($column, $this->casts)) {
+            if(!is_null($this->casts)&&array_key_exists($column, $this->casts)) {
                 $type = trim(rtrim($this->casts[$column], "::class"), "\"");
                 if($type=='date'||$type=='time'||$type=='datetime') {
                     $type = "DateTime";
@@ -205,7 +205,7 @@ class ModelBuilder
         file_put_contents($this->filename, sprintf($pattern, "<?php", $documentation, $model, $table, $columns, $casts, $linkedProperty, $stringTree));
     }
 
-    private function pedanticBuild(): void
+    private function interactiveBuild(): void
     {
         while (is_null($this->model)) {
             $model = Terminal::prompt("Type in model name: ");

@@ -1,0 +1,6 @@
+"order","identifier","item"
+"1","model","navbar.model.item"
+"2","collection","navbar.collection.item"
+"3","database","navbar.database.item"
+"4","languages","navbar.languages.item"
+"5","cli","navbar.cli.item"

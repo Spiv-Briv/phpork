@@ -16,119 +16,28 @@ class DatabaseBuilder
     {
         $tables = [];
 
-        $buffer = new TableBuilder("game");
+        $buffer = new TableBuilder("navbar");
         $tables[] = $buffer->primary()
-            ->string('name', 25)
-            ->string('surname', 35)
-            ->date('birthdate')
-            ->date('date')
-            ->foreign('team', 'teams')
-            ->foreign('country', 'countries');
+        ->integer('order')
+        ->string('identifier')
+        ->string('item', 30);
 
-        $buffer = new TableBuilder("countries");
+        $buffer = new TableBuilder("model_headings");
         $tables[] = $buffer->primary()
-            ->string('name', 40)
-            ->string('shortcut', 4)
-            ->string('colors', 30);
+            ->integer('order')
+            ->string('identifier')
+            ->text('title')
+            ->text('content');
 
-        $buffer = new TableBuilder("racers");
+        $buffer = new TableBuilder("collection_headings");
         $tables[] = $buffer->primary()
-            ->string('name', 50)
-            ->string('surname', 50)
-            ->date('birthdate')
-            ->float('rating')
-            ->foreign('country_id', 'countries');
+            ->integer('order')
+            ->string('identifier')
+            ->text('title')
+            ->text('content');
 
-        $buffer = new TableBuilder("heats");
-        $tables[] = $buffer->primary()
-            ->string('colors', 7)
-            ->string('racers', 12)
-            ->string('substitutions', 15)
-            ->string('results', 15)
-            ->integer('state');
-
-        $buffer = new TableBuilder("teams");
-        $tables[] = $buffer->primary()
-            ->string("city", 40)
-            ->string('sponsor', 40)
-            ->string("trainer", 70)
-            ->integer("league")
-            ->foreign('country_id', 'countries', null)
-            ->integer('estabilished')
-            ->string('stadium_name', 45)
-            ->integer('stadium_capacity')
-            ->float('stadium_attendance')
-            ->integer('ticket_price')
-            ->integer('budget', 0)
-            ->string("colors", 30);
-
-        $buffer = new TableBuilder("schedules");
-        $tables[] = $buffer->primary()
-            ->integer("league")
-            ->integer("round")
-            ->date("date")
-            ->foreign("home", 'teams', null, null, true)
-            ->foreign("away", 'teams', null, null, true)
-            ->integer("home_result")
-            ->integer("away_result")
-            ->integer('viewers', null, true)
-            ->integer("status")
-            ->integer("season_state");
-
-        $buffer = new TableBuilder("racer_match");
-        $tables[] = $buffer->primary()
-            ->foreign("racer_id", 'racers', null, null, true)
-            ->integer("match_form")
-            ->string("results", 25)
-            ->integer("ordinary_reserve")
-            ->integer("tactical_reserve");
-
-        $buffer = new TableBuilder("racer_statistics");
-        $tables[] = $buffer->primary()
-            ->foreign("racer_id", 'racers')
-            ->integer('season')
-            ->float('starting_rating')
-            ->integer('matches', 0)
-            ->integer('heats', 0)
-            ->string('places', 15, "0,0,0,0")
-            ->integer('points', 0)
-            ->integer('bonuses', 0)
-            ->integer('defects', 0)
-            ->integer('excludes', 0)
-            ->integer('tapes', 0)
-            ->integer('falls', 0);
-
-        $buffer = new TableBuilder("messages");
-        $tables[] = $buffer->primary()
-            ->date("date")
-            ->boolean('seen')
-            ->string('sender')
-            ->string("title", 80)
-            ->text("content", 750);
-
-        $buffer = new TableBuilder("contracts");
-        $tables[] = $buffer->primary()
-            ->integer('season')
-            ->foreign('racer_id', 'racers')
-            ->foreign('team_id', 'teams')
-            ->integer('price')
-            ->integer('per_point')
-            ->integer('per_bonus');
-
-        $buffer = new TableBuilder('team_history');
-        $tables[] = $buffer->primary()
-            ->foreign('team_id', 'teams')
-            ->integer('season')
-            ->integer('league', null, true)
-            ->integer('place', null, true);
-
-        $buffer = new TableBuilder('transfers');
-        $tables[] = $buffer->primary()
-            ->integer('season')
-            ->foreign('racer_id', 'racers')
-            ->foreign('old_team_id', 'teams', null, null, true)
-            ->foreign('new_team_id', 'teams', null, null, true);
-
+        
+        
         return $tables;
     }
 
@@ -156,18 +65,22 @@ class DatabaseBuilder
                 ]);
                 echo Terminal::success("Created table `" . Terminal::variable($_ENV['mysqli']->getTable(), Terminal::SUCCESS) . "` with " . Terminal::variable(count($_ENV['mysqli']->getColumns()), Terminal::SUCCESS) . " columns");
             }
-            echo Terminal::printl("");
-            foreach($tables as $table) {
+            foreach($tables as $key => $table) {
                 $query = $table->prepareIndexQuery();
                 if(!empty($query)) {
+                    if($key==0) {
+                        echo Terminal::printl("");
+                    }
                     $_ENV["mysqli"]->rawQuery($query);
                     echo Terminal::success("Added ".Terminal::variable($table->indexCount,Terminal::SUCCESS)." indexes to `".Terminal::variable($table->tableName, Terminal::SUCCESS)."` table");
                 }
             }
-            echo Terminal::printl("");
-            foreach($tables as $table) {
+            foreach($tables as $key => $table) {
                 $query = $table->prepareConstraintsQuery();
                 if(!empty($query)) {
+                    if($key==0) {
+                        echo Terminal::printl("");
+                    }
                     $_ENV["mysqli"]->rawQuery($query);
                     echo Terminal::success("Added ".Terminal::variable($table->constraintsCount,Terminal::SUCCESS)." constraints to `".Terminal::variable($table->tableName, Terminal::SUCCESS)."` table");
                 }

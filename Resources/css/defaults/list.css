@@ -1,28 +1,34 @@
 div[outlook="list_default"] {
-    margin: 5px 25px;
-    border: 2px solid var(--color-white);
-    border-radius: 25px 0;
+    border: 2px solid var(--color-border-bright);
+    border-radius: 5px;
     box-shadow: var(--size-shadow-S);
     width: fit-content;
     text-align: center;
-    background-color: var(--color-primary);
+    background-color: var(--color-background-list);
+    display: flex;
+    flex-direction: column;
+}
+
+div[outlook="list_default"] div[outlook="list_category_holder_default"] {
+    display: flex;
+    justify-content: space-around;
 }
 
 div[outlook="list_default"] div[outlook="list_category_default"] {
-    margin: 20px 15px;
+    margin: 10px;
     padding: 5px;
-    background-color: var(--color-secondary);
-    border: 1px solid var(--color-white);
-    border-radius: 25px 0;
+    background-color: var(--color-background-category);
+    border: 1px solid var(--color-border-bright);
+    border-radius: 5px;
     box-shadow: var(--size-shadow-XS);
 }
 
 div[outlook="list_default"] div[outlook="list_category_default"] div[outlook="list_category_item_default"] {
     margin: 5px;
-    padding: 15px;
-    background-color: var(--color-third);
-    border: 1px solid var(--color-white);
-    border-radius: 25px 0;
+    padding: 10px;
+    background-color: var(--color-background-item);
+    border: 1px solid var(--color-border-bright);
+    border-radius: 5px;
     box-shadow: var(--size-shadow-XS);
     counter-increment: count;
 }

@@ -1,77 +1,55 @@
-class TabPanel {
-    panels = [];
-    newTag = document.createElement('div');
-    tabBar = document.createElement('div');
-    panelContainer = document.createElement('div');
-    default = 0;
-    constructor(tag) {
-        this.tabBar.setAttribute('outlook','tab_panel_bar_default');
-        this.panelContainer.setAttribute('name','panel_container');
-        this.panels = tag.children;
-        this.newTag.classList = tag.classList;
-        this.newTag.innerHTML = tag.innerHTML;
-        if(tag.getAttribute('default')==null) {
-            console.warn('It is recommended to set initially displayed Panel');
+class TabPanel extends Element {
+    bar;
+    panelContainer;
+    constructor(node, iterator) {
+        super(node, "TabPanel", iterator, "tab_panel_default", 5, ["initial"],[],[],["Panel"]);
+        this.bar = document.createElement('div');
+        this.panelContainer = document.createElement('div');
+        if(this.default_outlook) {
+            this.bar.setAttribute("outlook","tab_panel_bar_default");
+            this.panelContainer.setAttribute("outlook","tab_panel_container_default");
         }
-        else {
-            this.default = tag.getAttribute('default');
-        }
-        for(const panel of this.panels) {
-            let tab = document.createElement('button');
-            if(panel.nodeName!=="PANEL") {
-                console.error('Children node of TabPanel can be only Panel');
-                break;
-            }
-            if(panel.getAttribute('tabname')===null) {
-                console.error("One of panels lacks required 'tabname' attribute");
-                break;
-            }
-            tab.innerText = panel.getAttribute('tabname');
-            tab.addEventListener('click',() => {
-                for (const child of this.panelContainer.children) {
-                    if(child.getAttribute('name')!=panel.getAttribute('tabname')) {
-                        child.style.display = "none";
-                    }
-                    else {
-                        child.style.display = "block";
-                    }
-                }
-                for (const child of this.tabBar.children) {
-                    if(child!=tab) {
-                        child.setAttribute('current','false');
-                    }
-                    else {
-                        child.setAttribute('current','true');
-                    }
-                }
-            });
-            if(this.tabBar.children.length==this.default) {
-                tab.setAttribute("current","true")
-            }
-            this.tabBar.appendChild(tab);
-            new Panel(panel, this.panelContainer, this.default);
-        };
-        this.outlook(tag.getAttribute('outlook'), tag.getAttribute('includeDefault'));
-        const cleanup = this.newTag.getElementsByTagName('panel');
-        for(let i = 0; i < cleanup.length; i=0) {
-             cleanup[0].remove();
-        }
-        this.newTag.append(this.tabBar);
-        this.newTag.append(this.panelContainer);
-        tag.replaceWith(this.newTag);
+        this.render();
     }
 
-    outlook(styles, defaultLook) {
-        if(styles===null || defaultLook==="true" || defaultLook===null) {
-            this.newTag.setAttribute('outlook','tab_panel_default');
-            if(styles===null) {
-                return;
-            }
+    render() {
+        let panels = this.element.getElementsByTagName('Panel');
+        const length = panels.length;
+        if(length!=this.element.children.length) {
+            console.warn(`There is unallowed tag. (${this.iteration} of TabPanel Tag)`);
         }
-        for (const style of styles.split(" ")) {
-            const element = style.split(":");
-            element[1] = element[1].replaceAll(',',' ');
-            this.newTag.style.setProperty(element[0], element[1]);
+        this.newElement.innerHTML = "";
+        for(let i=0; i<length; i++) {
+            let button = document.createElement("button");
+            button.innerText = panels[0].getAttribute('tabname');
+            button.addEventListener('click', () => {
+                for(let j=0;j<this.panelContainer.children.length;j++) {
+                    if(j==i) {
+                        this.bar.children[j].setAttribute("current","true");
+                        console.log(this.bar.children[j]);
+                        this.panelContainer.children[j].style.display = "block";
+                    }
+                    else {
+                        this.bar.children[j].removeAttribute("current")
+                        this.panelContainer.children[j].style.display = "none";
+                    }
+                }
+            })
+
+            const panel = new Panel(panels[0], i);
+            if(panel.returnCode<200) {
+                if(
+                    (this.newElement.getAttribute("initial")===null&&i==0)||
+                    (this.newElement.getAttribute("initial")!==null&&this.newElement.getAttribute("initial")==(i+1))
+                ) {
+                    button.setAttribute("current","true");
+                    panel.newElement.style.display = "block";
+                }
+                this.panelContainer.appendChild(panel.newElement);
+                this.bar.appendChild(button);
+                this.newElement.appendChild(this.bar);
+                this.newElement.appendChild(this.panelContainer);
+            }
         }
     }
 }
