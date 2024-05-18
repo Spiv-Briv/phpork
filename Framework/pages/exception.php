@@ -1,4 +1,5 @@
 <?php global $e;
+echo css('root');
 /** @var mysqli_sql_exception $e */ $i = 1; ?>
 <div style="margin: auto; width: fit-content; margin-top: 100px; padding: 25px; background-color: var(--color-secondary)">
     <div style="font-size: larger; text-align: center;">

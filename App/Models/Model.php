@@ -33,6 +33,11 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
         return new QueryBuilder(self::getTableName(), get_called_class());
     }
 
+    public static function sort(string|array $properties = "id", bool|array $ascending = true): Collection
+    {
+        return self::getAll()->sort($properties, $ascending);
+    }
+
     /** 
      * Staticly called pagination function equivalent to Model::getAll()->page($page)
      * @param int $page number of page to return (first page is 0)

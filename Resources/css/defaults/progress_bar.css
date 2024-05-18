@@ -1,0 +1,23 @@
+div[outlook="progress_bar_default"] {
+    background-color: var(--color-background-progress-bar);
+    border: 1px solid var(--color-border-bright);
+    border-radius: 10px;
+    margin: 5px;
+    height: 20px;
+    box-shadow: var(--size-shadow-XS);
+}
+
+div[outlook="progress_bar_default"] div[outlook="bar_default"] {
+    border-radius: 10px;
+    border-right: 1px solid var(--color-border-bright);
+    height: inherit;
+    background-color: var(--color-background-progress-bar-light);
+    transition-duration: 0.5s;
+    transition-timing-function: ease-out;
+}
+
+div[outlook="progress_bar_default"] div[outlook="text_default"] {
+    width: inherit;
+    position: relative;
+    top: -19px;
+}

@@ -6,5 +6,10 @@ return [
     "words" => [
         "good" => "%s dobre słowa",
         "wrong" => "%s złe słowa"
+    ],
+    "tests" => [
+        "test1" => [
+            "check" => "Co jeśli"
+        ]
     ]
 ];

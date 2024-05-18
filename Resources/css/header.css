@@ -1,0 +1,15 @@
+header {
+    margin: 0 75px;
+    padding: 5px;
+    height: 100px;
+    background-color: var(--color-primary);
+    border-radius: var(--border-bottom-radius-XXL);
+}
+
+header a {
+    height: inherit;
+}
+
+header img {
+    height: inherit;
+}

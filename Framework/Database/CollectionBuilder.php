@@ -12,14 +12,14 @@ class CollectionBuilder
     private ?int $pageSize;
     private string $filename;
     private bool $force;
-    private bool $pedantic;
+    private bool $interactive;
 
 
     function __construct(?string $collection, ?string $type, ?string $pageSize, array $flags)
     {
-        $this->pedantic = in_array('pedantic', $flags);
+        $this->interactive = in_array('interactive', $flags);
         $this->force = in_array('force', $flags);
-        if(!$this->pedantic&&is_null($collection)) {
+        if(!$this->interactive&&is_null($collection)) {
             echo Terminal::error("Collection name not provided");
             return;
         }
@@ -27,7 +27,7 @@ class CollectionBuilder
             echo Terminal::error("Collection is reserved name.");
             return;
         }
-        if (!$this->pedantic&&$this->collectionExists($this->getCollectionName($collection)) && !$this->force) {
+        if (!$this->interactive&&$this->collectionExists($this->getCollectionName($collection)) && !$this->force) {
             echo Terminal::error("Collection already exist.").Terminal::warning("Add ".Terminal::variable("--force", Terminal::WARNING)." flag to overwrite it");
             return;
         }
@@ -41,8 +41,8 @@ class CollectionBuilder
         else {
             $this->pageSize = (int)$pageSize;
         }
-        if($this->pedantic) {
-            $this->pedanticBuild();
+        if($this->interactive) {
+            $this->interactiveBuild();
         }
         $this->compileFile();
         echo terminal::success("Collection created");
@@ -92,7 +92,7 @@ class CollectionBuilder
         file_put_contents($this->filename, sprintf($pattern, "<?php", $use, $collection, $type, $pageSize));
     }
 
-    private function pedanticBuild(): void
+    private function interactiveBuild(): void
     {
         while(is_null($this->collection)) {
             $collection = Terminal::prompt("Type in collection name: ");
@@ -101,7 +101,7 @@ class CollectionBuilder
                     echo Terminal::error("Collection is reserved name.");
                     continue;
                 }
-                if (!$this->pedantic&&$this->collectionExists($this->getCollectionName($collection)) && !$this->force) {
+                if (!$this->interactive&&$this->collectionExists($this->getCollectionName($collection)) && !$this->force) {
                     echo Terminal::error("Collection already exist.").Terminal::warning("Add ".Terminal::variable("--force", Terminal::WARNING)." flag to overwrite it");
                     continue;
                 }

@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
-define('ROUTE_DEPTH',count(explode('/',$_SERVER['SCRIPT_NAME']))-3);
+define('FOLDER_DEPTH', 0); //0 means that project is in htdocs folder (for XAMPP configuration). If project is nested deeper, use higher number (1 for htdocs/folder/project, 2 for htdocs/folder1/folder2/project, etc.)
+define('ROUTE_DEPTH',count(explode('/',$_SERVER['SCRIPT_NAME']))-(3 + FOLDER_DEPTH));
 $path = './';
 for($i=0;$i<ROUTE_DEPTH;$i++) {
     $path .= '../';
@@ -107,8 +108,8 @@ if($_SERVER['PHP_SELF']=="cli") {
     define('SCRIPT_ORIGIN', 'CLI');
     require_once "cliboot.php";
 }
-elseif(explode('/', $_SERVER["PHP_SELF"])[2]=="routes") {
-    if(explode('/', $_SERVER["PHP_SELF"])[3]=="api") {
+elseif(explode('/', $_SERVER["PHP_SELF"])[2+FOLDER_DEPTH]=="routes") {
+    if(explode('/', $_SERVER["PHP_SELF"])[3+FOLDER_DEPTH]=="api") {
         define('SCRIPT_ORIGIN','JSON');
         require_once "jsonboot.php";
     }

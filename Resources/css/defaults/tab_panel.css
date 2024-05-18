@@ -1,29 +1,41 @@
 div[outlook="tab_panel_default"] {
     width: 100%;
+    height: inherit;
+    box-sizing: border-box;
 }
 
 div[outlook="tab_panel_bar_default"] {
-    background-color: var(--color-third);
+    background-color: transparent;
     padding: 15px 50px 0 50px;
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    border-bottom: 1px solid var(--color-border-bright);
 }
 
 div[outlook="tab_panel_bar_default"] button {
-    background-color: var(--color-third);
+    background-color: var(--color-background-container);
     color: var(--color-white);
     padding: 10px;
-    flex: 1;
+    flex: 4;
     transition-duration: 0.2s;
     cursor: pointer;
     border: none;
-    box-shadow: -1px -4px 3px black;
+    border-top: 1px solid var(--color-border);
+    box-shadow: -1px -1px 2px black;
     font-family: arial, sans-serif;
     font-size: 16px;
-    border-radius: 25px 0 0 0;
+    border-radius: 5px 5px 0 0;
 }
 
 div[outlook="tab_panel_bar_default"] button[current="true"] {
-    background-color: var(--color-background);
+    background-color: var(--color-background-container-dark);
+    border-bottom: none;
+    border-color: var(--color-border-bright);
+    flex: 5;
+}
+
+div[outlook="tab_panel_container_default"] {
+    background-color: var(--color-background-container-dark);
+    border-bottom: 1px solid var(--color-border-bright);
 }

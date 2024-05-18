@@ -10,7 +10,7 @@ foreach($languages as $language) {
 }
 define('TRANSLATION_LANGUAGE', $usedLanguage);
 
-define('RESOURCE_ROUTE_DEPTH',count(explode('/',$_SERVER['REQUEST_URI']))-3);
+define('RESOURCE_ROUTE_DEPTH',count(explode('/',$_SERVER['REQUEST_URI']))-(3+FOLDER_DEPTH));
 $path = './';
 for($i=0;$i<RESOURCE_ROUTE_DEPTH;$i++) {
     $path .= '../';
@@ -40,10 +40,10 @@ function js(string $file): string
 function page(string $file, string $extension = 'php', bool $once = false): void
 {
     if($once) {
-        include_once RESOURCE_PATH."Resources/pages/$file.$extension";
+        include_once RELATIVE_PATH."Resources/pages/$file.$extension";
     }
     else {
-        include RESOURCE_PATH."Resources/pages/$file.$extension";
+        include RELATIVE_PATH."Resources/pages/$file.$extension";
     }
 }
 
@@ -58,10 +58,10 @@ function route(string $file, string $extension = 'php'): string
 function image(string $file, string $extension = "png", bool $onlyFilepath = false): string
 {
     if ($onlyFilepath) {
-        return RELATIVE_PATH."Resources/images/$file.$extension";
+        return RESOURCE_PATH."Resources/images/$file.$extension";
     }
     else {
-        return "<img alt='$file' src='".RELATIVE_PATH."Resources/images/$file.$extension' />";
+        return "<img alt='$file' src='".RESOURCE_PATH."Resources/images/$file.$extension' />";
     }
 }
 
@@ -92,30 +92,36 @@ function audio(string $file, string $extension = "mp3", bool $onlyFilePath = fal
 function frameworkPage(string $file, string $extension = "php", bool $once = false): void
 {
     if($once) {
-        include_once RESOURCE_PATH."Framework/$file.$extension";
+        include_once RELATIVE_PATH."Framework/$file.$extension";
     }
     else {
-        include RESOURCE_PATH."Framework/$file.$extension";
+        include RELATIVE_PATH."Framework/$file.$extension";
     }
 }
 
-//Launch base css
-echo css('root').
-css('root').
-css('root').
-css('defaults/button').
-css('defaults/container').
-css('defaults/list').
-css('defaults/tab_panel').
-js('customElements/CustomElement').
-js('customElements/TabPanel').
-js('customElements/Panel').
-js('customElements/postButton').
-js('customElements/getButton').
-js('customElements/Container').
-js('customElements/List').
-js('customElements/Category').
-js('customElements/Item');
+//Your own boot functions nad initializations
+function prepareCss() {
+    echo css('root');
+    foreach(scandir(RELATIVE_PATH."Resources/css/defaults") as $file) {
+        if(!str_starts_with($file, '.')) {
+            echo css("defaults/".explode('.', $file)[0]);
+        }
+    }
+}
+
+function prepareJs() {
+    echo js('customElements/CustomElement');
+    echo js('customElements/RedirectButton');
+    foreach(scandir(RELATIVE_PATH."Resources/js/customElements") as $file) {
+        if($file == "CustomElement.js"|| $file == "RedirectButton.js") {
+            continue;
+        }
+        if(!str_starts_with($file, '.')) {
+            echo js("customElements/".explode('.', $file)[0]);
+        }
+    }
+}
+
 ?>
 <script>
     document.addEventListener('DOMContentLoaded',()=>{

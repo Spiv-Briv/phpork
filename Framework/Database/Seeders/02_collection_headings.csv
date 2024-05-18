@@ -1,0 +1,8 @@
+"order","identifier","title","content"
+"1","introduction","collection.introduction.title","collection.introduction.content"
+"2","create_collection","collection.create_collection.title","collection.create_collection.content"
+"3","properties","collection.properties.title","collection.properties.content"
+"4","type","collection.type.title","collection.type.content"
+"5","elements_per_page","collection.elements_per_page.title","collection.elements_per_page.content"
+"6","static_methods","collection.static_methods.title","collection.static_methods.content"
+"7","methods","collection.methods.title","collection.methods.content"
