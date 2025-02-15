@@ -13,33 +13,13 @@ require_once "./../boot.php";
 <body>
 <?= \App\Models\Schedule::find(1) ?>
 <?= \App\Models\Schedule::find(2) ?>
-<?php
-$schedule = \App\Models\Schedule::find(1);
-$schedule2 = \App\Models\Team::find(1);
-$time = microtime(true);
-if ($schedule == $schedule2) {
-
-}
-$stop = microtime(true);
-$time = $stop - $time;
-echo $time."<br/>";
-
-$time = microtime(true);
-if ($schedule->id===$schedule2->id) {
-
-}
-$stop = microtime(true);
-$time = $stop - $time;
-echo $time."<br/>";
-
-$time = microtime(true);
-if ($schedule->equals($schedule2)) {
-
-}
-$stop = microtime(true);
-$time = $stop - $time;
-echo $time."<br/>";
-var_dump($schedule->equals($schedule2));
+<?php for ($i = 1; $i <= 10; $i++)
+    component('test_component', 'php',
+        [
+            "meeting" => $i,
+            "match" => \App\Models\Schedule::find($i)
+        ]
+    );
 ?>
 </body>
 </html>

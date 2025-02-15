@@ -47,6 +47,14 @@ function page(string $file, string $extension = 'php', bool $once = false): void
     }
 }
 
+function component(string $file, string $extension = 'php', array $params = []): void
+{
+    foreach($params as $name => $value) {
+        $$name = $value;
+    }
+    include RESOURCE_PATH."Resources/components/$file.$extension";
+}
+
 /** Returns path relative from routes folder. You may specify extension (php by default) */
 function route(string $file, string $extension = 'php'): string
 {
