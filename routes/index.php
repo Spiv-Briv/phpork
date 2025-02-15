@@ -1,9 +1,5 @@
 <?php
 
-use App\Collections\Collection;
-use App\Models\Country;
-use App\Models\Schedule;
-use App\Models\Team;
 
 require_once "./../boot.php";
 ?>
@@ -15,18 +11,35 @@ require_once "./../boot.php";
     <title>Cope</title>
 </head>
 <body>
-    <input type="number" id="language" />
-    <button onclick="update()">Wyświetl</button>
-    <div></div>
-    <script>
-        function update() {
-            const input = document.getElementById('language').value;
-            const sentence = fetch(`http://localhost/phpork/routes/api/team.php`, {method: "DELETE", body: JSON.stringify({id: input})}).then(response => {return response.json()});
-            console.log(sentence.then( data => {
-                document.getElementsByTagName('div')[0].innerHTML = data.data;
-                return data.data}
-            ));
-        }
-    </script>
+<?= \App\Models\Schedule::find(1) ?>
+<?= \App\Models\Schedule::find(2) ?>
+<?php
+$schedule = \App\Models\Schedule::find(1);
+$schedule2 = \App\Models\Team::find(1);
+$time = microtime(true);
+if ($schedule == $schedule2) {
+
+}
+$stop = microtime(true);
+$time = $stop - $time;
+echo $time."<br/>";
+
+$time = microtime(true);
+if ($schedule->id===$schedule2->id) {
+
+}
+$stop = microtime(true);
+$time = $stop - $time;
+echo $time."<br/>";
+
+$time = microtime(true);
+if ($schedule->equals($schedule2)) {
+
+}
+$stop = microtime(true);
+$time = $stop - $time;
+echo $time."<br/>";
+var_dump($schedule->equals($schedule2));
+?>
 </body>
 </html>

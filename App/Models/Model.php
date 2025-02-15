@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Framework\Interfaces\Comparable;
 use Stringable;
 use JsonSerializable;
 use App\Collections\Collection;
@@ -16,7 +17,7 @@ use Framework\Exceptions\NotNumericException;
 use Framework\Exceptions\UnknownCastException;
 use Framework\Exceptions\UndefinedPropertyException;
 
-abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
+abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable, Comparable
 {
     protected static string $table;
     protected static array $columns;
@@ -562,6 +563,12 @@ abstract class Model implements Stringable, SqlQueryCastable, JsonSerializable
     function jsonSerialize(): mixed
     {
         return $this->getValues(true);
+    }
+
+    public function equals(Model $otherModel): bool
+    {
+        $linkedProperty = self::getLinkedProperty();
+        return $this::class === $otherModel::class&&$this->$linkedProperty === $otherModel->$linkedProperty;
     }
 
     /**
